@@ -1,0 +1,5 @@
+__pycache__
+he21_atl_material_lager/database
+he21_atl_material_lager/log
+*.log
+*.db
