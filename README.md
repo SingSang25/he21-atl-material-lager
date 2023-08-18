@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Projekt Antrag
 Projektname
 Material Lager BewirtschaŌung
