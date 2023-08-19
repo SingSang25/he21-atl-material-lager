@@ -9,7 +9,7 @@ class ItemCreate(ItemBase):
     pass
 
 class Item(ItemBase):
-
+    availability: bool
 
     class Config:
         orm_mode = True

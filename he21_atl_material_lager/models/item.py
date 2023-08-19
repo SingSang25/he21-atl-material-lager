@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy.orm import relationship
 
 from he21_atl_material_lager.database import Base
 
@@ -9,3 +10,8 @@ class Item(Base):
     item = Column(String, index=True)
     number = Column(Integer, index=True)
     position = Column(String, index=True)
+    availability = Column(Boolean, index=True)
+    user = Column(Integer, ForeignKey("users.id"))
+
+    logs = relationship("Log", back_populates="item")
+    user = relationship("User", back_populates="item")
