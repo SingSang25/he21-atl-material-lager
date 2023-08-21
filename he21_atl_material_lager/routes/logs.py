@@ -33,7 +33,7 @@ def read_log(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @router.get("/{log_id}", response_model=Log, tags=["Log"])
 def read_log(log_id: int, db: Session = Depends(get_db)):
-    db_log = get_log(db, logs_id=log_id)
+    db_log = get_log(db, log_id=log_id)
     if db_log is None:
         raise HTTPException(status_code=404, detail="Log not found")
     return db_log
