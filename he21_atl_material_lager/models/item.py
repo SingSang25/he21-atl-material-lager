@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 
 from he21_atl_material_lager.database import Base
 
+
 class Item(Base):
     __tablename__ = "items"
 
@@ -11,7 +12,7 @@ class Item(Base):
     number = Column(Integer, index=True)
     position = Column(String, index=True)
     availability = Column(Boolean, index=True)
-    user = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
 
+    user = relationship("User", back_populates="items")
     logs = relationship("Log", back_populates="item")
-    user = relationship("User", back_populates="item")

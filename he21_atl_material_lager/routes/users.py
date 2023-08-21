@@ -1,8 +1,8 @@
-from fastapi import APIRouter
-from he21_atl_material_lager.schemas.users import User, UserCreate
-from he21_atl_material_lager.schemas.logs import Log, LogCreate    
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
+
+from he21_atl_material_lager.schemas.users import User, UserCreate
+from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.services.users import (
     get_user_by_email,
@@ -11,6 +11,7 @@ from he21_atl_material_lager.services.users import (
     get_users,
     get_user,
 )
+from he21_atl_material_lager.services.logs import get_logs_by_user_id
 
 router = APIRouter(prefix="/users")
 
@@ -20,15 +21,17 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    db_user = get_user_by_username(db, email=user.email)
+    db_user = get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     return create_user_service(db=db, user=user)
+
 
 @router.get("/", response_model=list[User], tags=["User"])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = get_users(db, skip=skip, limit=limit)
     return users
+
 
 @router.get("/{user_id}", response_model=User, tags=["User"])
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -37,9 +40,10 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-@router.get("/{user_id}/logs", response_model=User, tags=["User"])
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id=user_id)
+
+@router.get("/{user_id}/logs", response_model=list[Log], tags=["User"])
+def read_user_logs(user_id: int, db: Session = Depends(get_db)):
+    db_user = get_logs_by_user_id(db, user_id=user_id, skip=0, limit=100)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="No Log by this user")
     return db_user

@@ -14,8 +14,8 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    item: list[Item] = []
-    log: list[Log] = []
+    item_id: list[Item] = []
+    log_id: list[Log] = []
 
     class Config:
         orm_mode = True
