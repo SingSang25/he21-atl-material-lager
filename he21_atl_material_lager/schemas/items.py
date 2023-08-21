@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from he21_atl_material_lager.schemas.logs import Log
 
+
 class ItemBase(BaseModel):
     number: int
     item: str

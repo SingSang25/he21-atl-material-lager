@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import datetime
 
 
 class LogBase(BaseModel):
-    datum: date
+    datum: datetime
     user_id: int
     item_id: int
     log: str
