@@ -43,7 +43,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{user_id}/logs", response_model=list[Log], tags=["User"])
 def read_user_logs(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_logs_by_user_id(db, user_id=user_id, skip=0, limit=100)
+    db_user = get_logs_by_user_id(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="No Log by this user")
     return db_user

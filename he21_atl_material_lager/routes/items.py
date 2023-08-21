@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.schemas.items import Item, ItemCreate
+from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.services.logs import get_logs_by_item_id
 from he21_atl_material_lager.services.items import (
     create_item as create_item_service,
@@ -36,9 +37,9 @@ def read_item(item_id: int, db: Session = Depends(get_db)):
 
 
 # Log eines Items ausgeben
-@router.get("/{item_id}/logs", response_model=list[Item], tags=["Item"])
+@router.get("/{item_id}/logs", response_model=list[Log], tags=["Item"])
 def read_items_logs(item_id: int, db: Session = Depends(get_db)):
-    db_user = get_logs_by_item_id(db, item_id=item_id, skip=0, limit=100)
+    db_user = get_logs_by_item_id(db, item_id=item_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="No Log by this user")
     return db_user

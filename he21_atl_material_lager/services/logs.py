@@ -16,12 +16,12 @@ def get_logs_by_id(db: Session, id: int):
     return db.query(Log).filter(Log.id == id).first()
 
 
-def get_logs_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(Log).filter(Log.user_id == user_id).offset(skip).offset(limit).all()
+def get_logs_by_user_id(db: Session, user_id: int):
+    return db.query(Log).filter(Log.user_id == user_id)
 
 
-def get_logs_by_item_id(db: Session, item_id: int, skip: int = 0, limit: int = 100):
-    return db.query(Log).filter(Log.item_id == item_id).offset(skip).offset(limit).all()
+def get_logs_by_item_id(db: Session, item_id: int):
+    return db.query(Log).filter(Log.item_id == item_id)
 
 
 def create_log(db: Session, log: LogCreate):
