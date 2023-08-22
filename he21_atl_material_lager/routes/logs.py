@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.schemas.logs import Log, LogCreate
-from he21_atl_material_lager.services.users import get_users_by_id
+from he21_atl_material_lager.services.users import get_user_by_id
 from he21_atl_material_lager.services.items import get_items_by_id
 from he21_atl_material_lager.services.logs import (
     create_log as create_log_service,
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/logs")
 
 @router.post("/", response_model=Log, tags=["Log"])
 def create_log(log: LogCreate, db: Session = Depends(get_db)):
-    db_log = get_users_by_id(db, id=log.user_id)
+    db_log = get_user_by_id(db, id=log.user_id)
     if not db_log:
         raise HTTPException(status_code=400, detail="User not registered")
     db_log = get_items_by_id(db, id=log.item_id)

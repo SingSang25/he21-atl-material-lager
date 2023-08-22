@@ -2,16 +2,32 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from he21_atl_material_lager.dependencies import get_db
-from he21_atl_material_lager.schemas.items import Item, ItemCreate
+from he21_atl_material_lager.schemas.items import Item, ItemCreate, ItemUpdate
 from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.services.logs import get_logs_by_item_id
 from he21_atl_material_lager.services.items import (
     create_item as create_item_service,
+    update_item as update_item_service,
     get_items,
     get_item,
 )
 
 router = APIRouter(prefix="/items")
+
+
+@router.patch("/{item_id}", response_model=Item, tags=["Item"])
+def update_item(item_data: ItemUpdate, item_id: int, db: Session = Depends(get_db)):
+    db_item = get_item(db, item_id)
+
+    if db_item:
+        if db_item.id != item_id:
+            raise HTTPException(
+                status_code=403, detail="You are forbidden to make this request!"
+            )
+    else:
+        raise HTTPException(status_code=404, detail="Item not found!")
+
+    return update_item_service(db, item_id, item_data, db_item)
 
 
 # Erstellen Item

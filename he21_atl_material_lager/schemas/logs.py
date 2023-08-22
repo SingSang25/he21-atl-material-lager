@@ -13,6 +13,10 @@ class LogCreate(LogBase):
     pass
 
 
+class LogUpdate(LogBase):
+    pass
+
+
 class Log(LogBase):
     id: int
 

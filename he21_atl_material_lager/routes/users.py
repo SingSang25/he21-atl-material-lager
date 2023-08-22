@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from he21_atl_material_lager.schemas.users import User, UserCreate
+from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
 from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.services.users import (
     get_user_by_email,
     get_user_by_username,
     create_user as create_user_service,
+    update_user as update_user_service,
     get_users,
     get_user,
 )
@@ -16,21 +16,21 @@ from he21_atl_material_lager.services.logs import get_logs_by_user_id
 
 router = APIRouter(prefix="/users")
 
-@router.put("/{user_id}", response_model=User, tags=["User"])
-def update_user(user_id: int, user: User):
-    update_user_encoded = jsonable_encoder(User)
-    users[user_id] = update_user_encoded
-    return update_user_encoded
 
 @router.patch("/{user_id}", response_model=User, tags=["User"])
-def update_user(user_id: int, user: User, db: Session = Depends(get_db)):
-    users = get_user(db, user_id=user_id)
-    stored_user_data = users[user_id]
-    stored_user_model = User(**stored_user_data)
-    update_data = user.dict(exclude_unset=True)
-    updated_user = stored_user_model.copy(update=update_data)
-    users[user_id] = jsonable_encoder(updated_user)
-    return updated_user
+def update_user(user_data: UserUpdate, user_id: int, db: Session = Depends(get_db)):
+    db_user = get_user(db, user_id)
+
+    if db_user:
+        if db_user.id != user_id:
+            raise HTTPException(
+                status_code=403, detail="You are forbidden to make this request!"
+            )
+    else:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    return update_user_service(db, user_id, user_data, db_user)
+
 
 @router.post("/", response_model=User, tags=["User"])
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

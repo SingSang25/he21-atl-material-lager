@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
 
 from he21_atl_material_lager.models.item import Item
-from he21_atl_material_lager.schemas.items import ItemCreate
+from he21_atl_material_lager.schemas.items import ItemCreate, ItemUpdate
 
 
 def get_item(db: Session, item_id: int):
@@ -28,3 +29,25 @@ def create_item(db: Session, item: ItemCreate):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def update_item(db: Session, item_id: int, item_data: ItemUpdate, db_item: Item):
+    stored_item_object_schema = ItemUpdate(
+        number=db_item.number,
+        item=db_item.item,
+        availability=db_item.availability,
+        position=db_item.position,
+        user_id=db_item.user_id,
+    )
+
+    updated_item_model_dump = item_data.model_dump(exclude_unset=True)
+
+    updated_item_object_schema = stored_item_object_schema.model_copy(
+        update=updated_item_model_dump
+    )
+
+    db.query(Item).filter(Item.id == item_id).update(
+        jsonable_encoder(updated_item_object_schema)
+    )
+    db.commit()
+    return get_item(db, item_id)
