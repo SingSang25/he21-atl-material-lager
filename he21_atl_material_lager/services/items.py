@@ -50,4 +50,5 @@ def update_item(db: Session, item_id: int, item_data: ItemUpdate, db_item: Item)
         jsonable_encoder(updated_item_object_schema)
     )
     db.commit()
-    return get_item(db, item_id)
+    db.refresh(db_item)
+    return db_item

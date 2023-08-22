@@ -52,4 +52,5 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate, db_user: User)
         jsonable_encoder(updated_item_object_schema)
     )
     db.commit()
-    return get_user(db, user_id)
+    db.refresh(db_user)
+    return db_user
