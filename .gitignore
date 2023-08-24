@@ -1,6 +1,7 @@
 .vscode
 .venv
 .pytest_cache
+.coverage
 __pycache__
 *.log
 *.db
