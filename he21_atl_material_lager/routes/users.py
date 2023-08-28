@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security
 from sqlalchemy.orm import Session
+from typing import Annotated
 
 from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
 from he21_atl_material_lager.schemas.logs import Log
@@ -14,6 +15,7 @@ from he21_atl_material_lager.services.users import (
     get_user,
 )
 from he21_atl_material_lager.services.logs import get_logs_by_user_id
+from he21_atl_material_lager.services.users_authenticate import get_current_active_user
 
 router = APIRouter(prefix="/users")
 
@@ -73,3 +75,10 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     delete_user_service(db, user_id)
     return db_user
+
+
+@router.get("/me/", response_model=User, tags=["User"])
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return current_user

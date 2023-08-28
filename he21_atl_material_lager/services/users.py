@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 
 from he21_atl_material_lager.models.user import User
 from he21_atl_material_lager.schemas.users import UserCreate, UserUpdate
+from he21_atl_material_lager.services.security import get_password_hash
 
 
 def get_user(db: Session, user_id: int):
@@ -26,7 +27,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: UserCreate):
-    fake_password = user.password + "notreallyhashed"
+    fake_password = get_password_hash(user.password)
     db_user = User(email=user.email, username=user.username, password=fake_password)
     db.add(db_user)
     db.commit()
