@@ -3,7 +3,6 @@ from datetime import datetime
 
 
 class LogBase(BaseModel):
-    datum: datetime
     user_id: int
     item_id: int
     log: str
@@ -19,6 +18,7 @@ class LogUpdate(LogBase):
 
 class Log(LogBase):
     id: int
+    datum: datetime
 
     class Config:
         orm_mode = True

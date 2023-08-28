@@ -52,3 +52,9 @@ def update_item(db: Session, item_id: int, item_data: ItemUpdate, db_item: Item)
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def delete_item(db: Session, item_id: int):
+    db.query(Item).filter(Item.id == item_id).delete()
+    db.commit()
+    return {"message": "Item deleted"}

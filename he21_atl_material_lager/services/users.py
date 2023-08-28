@@ -54,3 +54,9 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate, db_user: User)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def delete_user(db: Session, user_id: int):
+    db.query(User).filter(User.id == user_id).delete()
+    db.commit()
+    return {"message": "User deleted successfully"}

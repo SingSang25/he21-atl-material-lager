@@ -39,7 +39,7 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
-def test_create_user():
+def test_user_create():
     response = client.post(
         "/users/",
         json={
@@ -55,7 +55,7 @@ def test_create_user():
     assert "id" in data
 
 
-def test_get_user():
+def test_user_get():
     response = client.post(
         "/users/",
         json={
@@ -75,7 +75,7 @@ def test_get_user():
     assert data["id"] == user_id
 
 
-def test_get_user_list():
+def test_user_get_list():
     response = client.post(
         "/users/",
         json={
@@ -126,7 +126,7 @@ def test_user_no_password_returned():
     assert data[0]["id"] == user_id
 
 
-def test_unique_email():
+def test_user_unique_email():
     response = client.post(
         "/users/",
         json={
@@ -151,7 +151,7 @@ def test_unique_email():
     assert data["detail"] == "Email already registered"
 
 
-def test_unique_username():
+def test_user_unique_username():
     response = client.post(
         "/users/",
         json={
@@ -174,3 +174,170 @@ def test_unique_username():
     data = response.json()
 
     assert data["detail"] == "Username already registered"
+
+
+def test_user_unique_username_and_email():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200
+
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 400
+    data = response.json()
+
+    assert data["detail"] == "Email and Username already registered"
+
+
+def test_user_patch_all_propety():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "email": "neu_deadpool@example.com",
+            "username": "neu_deadpool",
+            "password": "neu_chimichangas4life",
+        },
+    )
+    assert response.status_code == 200
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "neu_deadpool@example.com"
+    assert data["username"] == "neu_deadpool"
+    assert data["id"] == user_id
+
+
+def test_user_patch_username():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "username": "neu_deadpool",
+        },
+    )
+    assert response.status_code == 200
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "deadpool@example.com"
+    assert data["username"] == "neu_deadpool"
+    assert data["id"] == user_id
+
+
+def test_user_patch_email():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "email": "neu_deadpool@example.com",
+        },
+    )
+    assert response.status_code == 200
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "neu_deadpool@example.com"
+    assert data["username"] == "deadpool"
+    assert data["id"] == user_id
+
+
+def test_user_get_not_found():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    user_id = "5"
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 404, response.text
+    data = response.json()
+    assert data["detail"] == "User not found"
+
+
+def test_user_patch_not_found():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    user_id = "5"
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "email": "neu_deadpool@example.com",
+        },
+    )
+    assert response.status_code == 404, response.text
+    data = response.json()
+    assert data["detail"] == "User not found"
+
+
+def test_user_delete():
+    response = client.post(
+        "/users/",
+        json={
+            "email": "deadpool@example.com",
+            "username": "deadpool",
+            "password": "chimichangas4life",
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+    response = client.delete(f"/users/{user_id}")
+    assert response.status_code == 200, response.text
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 404, response.text
+    data = response.json()
+    assert data["detail"] == "User not found"

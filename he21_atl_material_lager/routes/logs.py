@@ -16,13 +16,16 @@ router = APIRouter(prefix="/logs")
 
 @router.post("/", response_model=Log, tags=["Log"])
 def create_log(log: LogCreate, db: Session = Depends(get_db)):
-    db_log = get_user_by_id(db, id=log.user_id)
-    if not db_log:
+    db_log_user = get_user_by_id(db, log.user_id)
+    db_log_item = get_items_by_id(db, log.item_id)
+    if not db_log_user and not db_log_item:
+        raise HTTPException(status_code=400, detail="User and Item already registered")
+    if not db_log_user:
         raise HTTPException(status_code=400, detail="User not registered")
-    db_log = get_items_by_id(db, id=log.item_id)
-    if not db_log:
+
+    if not db_log_item:
         raise HTTPException(status_code=400, detail="Item not registered")
-    return create_log_service(db=db, log=log)
+    return create_log_service(db, log)
 
 
 @router.get("/", response_model=list[Log], tags=["Log"])

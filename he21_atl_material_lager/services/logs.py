@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from he21_atl_material_lager.models.log import Log
 from he21_atl_material_lager.schemas.logs import LogCreate
@@ -25,7 +26,9 @@ def get_logs_by_item_id(db: Session, item_id: int):
 
 
 def create_log(db: Session, log: LogCreate):
-    db_log = Log(datum=log.datum, log=log.log, user_id=log.user_id, item_id=log.item_id)
+    db_log = Log(
+        datum=datetime.today(), log=log.log, user_id=log.user_id, item_id=log.item_id
+    )
     db.add(db_log)
     db.commit()
     db.refresh(db_log)

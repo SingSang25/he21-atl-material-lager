@@ -8,6 +8,7 @@ from he21_atl_material_lager.services.logs import get_logs_by_item_id
 from he21_atl_material_lager.services.items import (
     create_item as create_item_service,
     update_item as update_item_service,
+    delete_item as delete_item_service,
     get_items,
     get_item,
 )
@@ -19,13 +20,8 @@ router = APIRouter(prefix="/items")
 def update_item(item_data: ItemUpdate, item_id: int, db: Session = Depends(get_db)):
     db_item = get_item(db, item_id)
 
-    if db_item:
-        if db_item.id != item_id:
-            raise HTTPException(
-                status_code=403, detail="You are forbidden to make this request!"
-            )
-    else:
-        raise HTTPException(status_code=404, detail="Item not found!")
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
 
     return update_item_service(db, item_id, item_data, db_item)
 
@@ -59,3 +55,12 @@ def read_items_logs(item_id: int, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=404, detail="No Log by this user")
     return db_user
+
+
+@router.delete("/{item_id}", response_model=Item, tags=["Item"])
+def delete_item(item_id: int, db: Session = Depends(get_db)):
+    db_item = get_item(db, item_id=item_id)
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    delete_item_service(db, item_id)
+    return db_item
