@@ -145,3 +145,45 @@ def test_log_get_not_found():
     assert response.status_code == 404, response.text
     data = response.json()
     assert data["detail"] == "Log not found"
+
+
+def test_log_create_user_not_found():
+    response = client.post(
+        "/logs/",
+        json={
+            "user_id": 5,
+            "item_id": 1,
+            "log": "create",
+        },
+    )
+    assert response.status_code == 400, response.text
+    data = response.json()
+    assert data["detail"] == "User not registered"
+
+
+def test_log_create_item_not_found():
+    response = client.post(
+        "/logs/",
+        json={
+            "user_id": 1,
+            "item_id": 5,
+            "log": "create",
+        },
+    )
+    assert response.status_code == 400, response.text
+    data = response.json()
+    assert data["detail"] == "Item not registered"
+
+
+def test_log_create_user_and_item_not_found():
+    response = client.post(
+        "/logs/",
+        json={
+            "user_id": 5,
+            "item_id": 5,
+            "log": "create",
+        },
+    )
+    assert response.status_code == 400, response.text
+    data = response.json()
+    assert data["detail"] == "User and Item already registered"
