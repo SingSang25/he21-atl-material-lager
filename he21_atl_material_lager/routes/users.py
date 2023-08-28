@@ -12,7 +12,7 @@ from he21_atl_material_lager.services.users import (
     update_user as update_user_service,
     delete_user as delete_user_service,
     get_users,
-    get_user,
+    get_user_by_id,
 )
 from he21_atl_material_lager.services.logs import get_logs_by_user_id
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/users")
 
 @router.patch("/{user_id}", response_model=User, tags=["User"])
 def update_user(user_data: UserUpdate, user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id)
+    db_user = get_user_by_id(db, user_id)
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -54,7 +54,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @router.get("/{user_id}", response_model=User, tags=["User"])
 def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id)
+    db_user = get_user_by_id(db, user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -70,7 +70,7 @@ def read_user_logs(user_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/{user_id}", response_model=User, tags=["User"])
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id)
+    db_user = get_user_by_id(db, user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     delete_user_service(db, user_id)
