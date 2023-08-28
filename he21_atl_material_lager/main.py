@@ -14,3 +14,8 @@ app.include_router(logs.router)
 app.include_router(users.router)
 app.include_router(tockens.router)
 app.include_router(status.router)
+
+# Fragen:
+# Wie kann ich Konfigs speichern? (SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES)
+# Wie kann ich die Datenbank mit Daten füllen beim erstellen (User)?
+# 
