@@ -5,17 +5,15 @@ from jose import JWTError, jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from he21_atl_material_lager.config.config import (
+    SECRET_KEY,
+    ALGORITHM,
+)
 from he21_atl_material_lager.schemas.users import User
 from he21_atl_material_lager.schemas.tokens import TokenData
 from he21_atl_material_lager.services.users import get_user_by_username
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.services.security import verify_password
-
-# to get a string like this run:
-# openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/login/access-token/",

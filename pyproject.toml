@@ -13,6 +13,7 @@ sqlalchemy = {extras = ["all"], version = "^2.0.20"}
 python-multipart = "^0.0.6"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"

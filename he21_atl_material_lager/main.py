@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from he21_atl_material_lager.database import engine
 from he21_atl_material_lager.models import item, log, user
 from he21_atl_material_lager.routes import items, logs, users, tockens, status
-from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.install import init_db_user
 
 item.Item.metadata.create_all(bind=engine)
