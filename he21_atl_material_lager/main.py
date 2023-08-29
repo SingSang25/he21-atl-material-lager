@@ -27,6 +27,4 @@ def startup_event():
 
 # Fragen:
 # Wie kann ich Konfigs speichern? (SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES)
-# C:\Users\jaze\GitHub\HE21-ATL-Material-Lager\.venv\Lib\site-packages\pydantic\_internal\_config.py:269: UserWarning: Valid config keys have changed in V2:
-# * 'orm_mode' has been renamed to 'from_attributes'
-#  warnings.warn(message, UserWarning)
+# https://dev.to/jakewitcher/using-env-files-for-environment-variables-in-python-applications-55a1

@@ -13,7 +13,7 @@ def init_db_user():
     create_user(
         UserCreate(
             username="admin",
-            email="admin@test.local",
+            email="admin@bananna.local",
             password="admin",
             admin=True,
             disabled=False,
@@ -23,7 +23,7 @@ def init_db_user():
     create_user(
         UserCreate(
             username="user",
-            email="user@test.local",
+            email="user@bananna.local",
             password="user",
             admin=False,
             disabled=False,
