@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 from he21_atl_material_lager.schemas.users import User
 from he21_atl_material_lager.schemas.tokens import TokenData
@@ -34,6 +35,7 @@ def authenticate_user(db, username: str, password: str):
 async def get_current_user(
     security_scopes: SecurityScopes,
     token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db),
 ):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
@@ -53,14 +55,14 @@ async def get_current_user(
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = get_user_by_username(get_db, token_data.username)
+    user = get_user_by_username(db, token_data.username)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
         if scope not in token_data.scopes:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not enough permissions",
+                detail="Not enough permissions Hallo",
                 headers={"WWW-Authenticate": authenticate_value},
             )
     return user

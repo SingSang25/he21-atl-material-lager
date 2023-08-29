@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -16,18 +16,15 @@ from he21_atl_material_lager.services.users import (
 )
 from he21_atl_material_lager.services.logs import get_logs_by_user_id
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
+from he21_atl_material_lager.services.security import get_password_hash
 
 router = APIRouter(prefix="/users")
 
 
-@router.patch("/{user_id}", response_model=User, tags=["User"])
-def update_user(user_data: UserUpdate, user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user_by_id(db, user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return update_user_service(db, user_id, user_data, db_user)
+@router.get("/", response_model=list[User], tags=["User"])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = get_users(db, skip=skip, limit=limit)
+    return users
 
 
 @router.post("/", response_model=User, tags=["User"])
@@ -46,10 +43,37 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return create_user_service(db=db, user=user)
 
 
-@router.get("/", response_model=list[User], tags=["User"])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = get_users(db, skip=skip, limit=limit)
-    return users
+@router.get("/me/", response_model=User, tags=["User"])
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return current_user
+
+
+@router.patch("/me/", response_model=User, tags=["User"])
+def update_user_me(
+    user_data: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+):
+    db_user = get_user_by_id(db, current_user.id)
+
+    if user_data.password:
+        user_data.password = get_password_hash(user_data.password)
+
+    return update_user_service(db, current_user.id, user_data, db_user)
+
+
+@router.delete("/me/", response_model=User, tags=["User"])
+def delete_user_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+):
+    db_user = get_user_by_id(db, current_user.id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    delete_user_service(db, current_user.id)
+    return db_user
 
 
 @router.get("/{user_id}", response_model=User, tags=["User"])
@@ -60,12 +84,14 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.get("/{user_id}/logs", response_model=list[Log], tags=["User"])
-def read_user_logs(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_logs_by_user_id(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="No Log by this user")
-    return db_user
+@router.patch("/{user_id}", response_model=User, tags=["User"])
+def update_user(user_data: UserUpdate, user_id: int, db: Session = Depends(get_db)):
+    db_user = get_user_by_id(db, user_id)
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return update_user_service(db, user_id, user_data, db_user)
 
 
 @router.delete("/{user_id}", response_model=User, tags=["User"])
@@ -77,8 +103,9 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.get("/me/", response_model=User, tags=["User"])
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return current_user
+@router.get("/{user_id}/logs", response_model=list[Log], tags=["User"])
+def read_user_logs(user_id: int, db: Session = Depends(get_db)):
+    db_user = get_logs_by_user_id(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="No Log by this user")
+    return db_user

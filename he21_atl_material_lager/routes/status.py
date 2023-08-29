@@ -9,4 +9,4 @@ router = APIRouter(prefix="/status")
 
 @router.get("/", tags=["Status"])
 async def read_system_status(current_user: Annotated[User, Depends(get_current_user)]):
-    return {"status": "ok"}
+    return current_user

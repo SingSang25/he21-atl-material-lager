@@ -2,9 +2,12 @@ from pydantic import BaseModel
 from he21_atl_material_lager.schemas.items import Item
 from he21_atl_material_lager.schemas.logs import Log
 
+
 class UserBase(BaseModel):
     email: str
     username: str
+    admin: bool
+    disabled: bool
 
 
 class UserCreate(UserBase):
@@ -15,12 +18,14 @@ class UserUpdate(UserBase):
     email: str | None = None
     username: str | None = None
     password: str | None = None
+    admin: bool | None = None
+    disabled: bool | None = None
 
 
 class User(UserBase):
     id: int
-    item_id: list[Item] = []
-    log_id: list[Log] = []
+    item: list[Item] = []
+    log: list[Log] = []
 
     class Config:
         orm_mode = True

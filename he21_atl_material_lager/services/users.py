@@ -18,13 +18,27 @@ def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
 
+def get_user_by_admin(db: Session, admin: bool):
+    return db.query(User).filter(User.admin == admin).first()
+
+
+def get_user_by_disabled(db: Session, disabled: bool):
+    return db.query(User).filter(User.disabled == disabled).first()
+
+
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(User).offset(skip).limit(limit).all()
 
 
 def create_user(db: Session, user: UserCreate):
-    fake_password = get_password_hash(user.password)
-    db_user = User(email=user.email, username=user.username, password=fake_password)
+    password = get_password_hash(user.password)
+    db_user = User(
+        email=user.email,
+        username=user.username,
+        password=password,
+        admin=user.admin,
+        disabled=user.disabled,
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -37,6 +51,8 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate, db_user: User)
         email=db_user.email,
         password=db_user.password,
         id=db_user.id,
+        admin=db_user.admin,
+        disabled=db_user.disabled,
     )
 
     updated_item_model_dump = user_data.model_dump(exclude_unset=True)
