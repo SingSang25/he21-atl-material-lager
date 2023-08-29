@@ -14,7 +14,7 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 
-def get_user_by_id(db: Session, user_id: int):
+def get_user_by_id(db: Session, user_id: str):
     return db.query(User).filter(User.id == user_id).first()
 
 
@@ -45,7 +45,7 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 
-def update_user(db: Session, user_id: int, user_data: UserUpdate, db_user: User):
+def update_user(db: Session, user_id: str, user_data: UserUpdate, db_user: User):
     stored_item_object_schema = UserUpdate(
         username=db_user.username,
         email=db_user.email,
@@ -69,7 +69,11 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate, db_user: User)
     return db_user
 
 
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: str):
     db.query(User).filter(User.id == user_id).delete()
     db.commit()
     return {"message": "User deleted successfully"}
+
+
+def is_user_admin(db: Session, user_id: str):
+    return db.query(User).filter(User.id == user_id).first().admin

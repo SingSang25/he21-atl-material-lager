@@ -7,7 +7,7 @@ class ItemBase(BaseModel):
     item: str
     availability: bool
     position: str
-    user_id: int
+    user_id: str
 
 
 class ItemCreate(ItemBase):
@@ -19,12 +19,12 @@ class ItemUpdate(ItemBase):
     item: str | None = None
     availability: bool | None = None
     position: str | None = None
-    user_id: int | None = None
+    user_id: str | None = None
 
 
 class Item(ItemBase):
-    id: int
-    log_id: list[Log] = []
+    id: str
+    log: list[Log] = []
 
     class Config:
         orm_mode = True

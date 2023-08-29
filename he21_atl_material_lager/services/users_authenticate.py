@@ -18,8 +18,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="token",
-    scopes={"me": "Read information about the current user.", "items": "Read items."},
+    tokenUrl="/login/access-token/",
+    scopes={
+        "users": "All User Interactrions (Not Edit and Remove)",
+        "admin": "All Admin Interactrions (Edit and Remove)",
+    },
 )
 
 
@@ -62,14 +65,14 @@ async def get_current_user(
         if scope not in token_data.scopes:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not enough permissions Hallo",
+                detail="Hey Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
     return user
 
 
 async def get_current_active_user(
-    current_user: Annotated[User, Security(get_current_user, scopes=["me"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["user"])],
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")

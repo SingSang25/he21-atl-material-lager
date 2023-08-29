@@ -5,7 +5,7 @@ from he21_atl_material_lager.schemas.logs import Log
 
 class UserBase(BaseModel):
     email: str
-    username: str
+    username:  str
     admin: bool
     disabled: bool
 
@@ -23,7 +23,7 @@ class UserUpdate(UserBase):
 
 
 class User(UserBase):
-    id: int
+    id: str
     item: list[Item] = []
     log: list[Log] = []
 

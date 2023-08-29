@@ -14,10 +14,10 @@ from he21_atl_material_lager.services.users_authenticate import (
     authenticate_user,
 )
 
-router = APIRouter(prefix="/token")
+router = APIRouter(prefix="/login")
 
 
-@router.post("/", response_model=Token, tags=["Token"])
+@router.post("/access-token/", response_model=Token, tags=["Token"])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),

@@ -26,6 +26,15 @@ def clear_db():
     Base.metadata.create_all(bind=engine)
 
 
+@fixture
+def valid_token():
+    response = client.post(
+        "/login/access-token",
+        data={"username": "admin", "password": "admin"},
+    )
+    return response.json()
+
+
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -39,7 +48,7 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
-def test_user_create():
+def test_user_create(valid_token):
     response = client.post(
         "/users/",
         json={
@@ -47,6 +56,7 @@ def test_user_create():
             "username": "deadpool",
             "password": "chimichangas4life",
         },
+        headers={"Authorization": f"Bearer {valid_token}"},
     )
     assert response.status_code == 200, response.text
     data = response.json()

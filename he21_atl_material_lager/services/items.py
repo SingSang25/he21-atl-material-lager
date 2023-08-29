@@ -5,7 +5,7 @@ from he21_atl_material_lager.models.item import Item
 from he21_atl_material_lager.schemas.items import ItemCreate, ItemUpdate
 
 
-def get_item(db: Session, item_id: int):
+def get_item(db: Session, item_id: str):
     return db.query(Item).filter(Item.id == item_id).first()
 
 
@@ -13,7 +13,7 @@ def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Item).offset(skip).limit(limit).all()
 
 
-def get_items_by_id(db: Session, id: int):
+def get_items_by_id(db: Session, id: str):
     return db.query(Item).filter(Item.id == id).first()
 
 
@@ -31,7 +31,7 @@ def create_item(db: Session, item: ItemCreate):
     return db_item
 
 
-def update_item(db: Session, item_id: int, item_data: ItemUpdate, db_item: Item):
+def update_item(db: Session, item_id: str, item_data: ItemUpdate, db_item: Item):
     stored_item_object_schema = ItemUpdate(
         number=db_item.number,
         item=db_item.item,
@@ -54,7 +54,7 @@ def update_item(db: Session, item_id: int, item_data: ItemUpdate, db_item: Item)
     return db_item
 
 
-def delete_item(db: Session, item_id: int):
+def delete_item(db: Session, item_id: str):
     db.query(Item).filter(Item.id == item_id).delete()
     db.commit()
     return {"message": "Item deleted"}
