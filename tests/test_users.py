@@ -1,3 +1,4 @@
+from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -6,6 +7,11 @@ from sqlalchemy.pool import StaticPool
 from he21_atl_material_lager.database import Base
 from he21_atl_material_lager.main import app
 from he21_atl_material_lager.dependencies import get_db
+from he21_atl_material_lager.services.users import (
+    get_user_by_username,
+    create_user as create_user_servic,
+)
+from he21_atl_material_lager.schemas.users import UserCreate
 from pytest import fixture
 
 SQLALCHEMY_DATABASE_URL = (
@@ -26,13 +32,36 @@ def clear_db():
     Base.metadata.create_all(bind=engine)
 
 
-@fixture
+@fixture()
 def valid_token():
     response = client.post(
         "/login/access-token",
         data={"username": "admin", "password": "admin"},
     )
-    return response.json()
+    data = response.json()
+    return data["access_token"]
+
+
+@fixture(scope="function", autouse=True)
+def create_user():
+    db = next(override_get_db())
+    create_user_servic(
+        db,
+        UserCreate(
+            username="admin",
+            email="admin@bananna.local",
+            password="admin",
+            admin=True,
+            disabled=False,
+        ),
+    )
+
+
+@fixture(scope="function")
+def get_user_admin_id():
+    db = next(override_get_db())
+    data = get_user_by_username(db, "admin")
+    return data.id
 
 
 def override_get_db():
@@ -46,6 +75,22 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
+
+
+def test_user_login():
+    response = client.post(
+        "/login/access-token",
+        data={
+            "grant_type": "password",
+            "scope": "admin",
+            "username": "admin",
+            "password": "admin",
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert "access_token" in data
+    assert "token_type" in data
 
 
 def test_user_create(valid_token):
@@ -65,7 +110,7 @@ def test_user_create(valid_token):
     assert "id" in data
 
 
-def test_user_get():
+def test_user_get(valid_token):
     response = client.post(
         "/users/",
         json={
@@ -73,6 +118,7 @@ def test_user_get():
             "username": "deadpool",
             "password": "chimichangas4life",
         },
+        headers={"Authorization": f"Bearer {valid_token}", "Scope": "admin"},
     )
     assert response.status_code == 200, response.text
     data = response.json()
