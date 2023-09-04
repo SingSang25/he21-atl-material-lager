@@ -8,6 +8,7 @@ from he21_atl_material_lager.models.user import User
 pytest_plugins = ["tests.config.fixture"]
 
 
+# Geht nicht, da startup nicht in test_db speichert
 def test_default_user_create(valid_token):
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as client:
