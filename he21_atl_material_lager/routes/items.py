@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -14,7 +14,7 @@ from he21_atl_material_lager.services.items import (
     update_item as update_item_service,
     delete_item as delete_item_service,
     get_items,
-    get_item,
+    get_items_by_id
 )
 
 router = APIRouter(prefix="/items")
@@ -24,10 +24,10 @@ router = APIRouter(prefix="/items")
 def update_item(
     item_data: ItemUpdate,
     item_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
-    db_item = get_item(db, item_id)
+    db_item = get_items_by_id(db, item_id)
 
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -38,7 +38,7 @@ def update_item(
 @router.post("/", response_model=Item, tags=["Item"])
 def create_item(
     item: ItemCreate,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     return create_item_service(db=db, item=item)
@@ -61,7 +61,7 @@ def read_item(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
-    db_item = get_item(db, item_id=item_id)
+    db_item = get_items_by_id(db, item_id=item_id)
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     return db_item
@@ -82,12 +82,12 @@ def read_items_logs(
 @router.delete("/{item_id}", response_model=Item, tags=["Item"])
 def delete_item(
     item_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     if is_user_admin(db, current_user.id) is False:
         raise HTTPException(status_code=400, detail="Activ User is not an Admin")
-    db_item = get_item(db, item_id=item_id)
+    db_item = get_items_by_id(db, item_id=item_id)
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     delete_item_service(db, item_id)

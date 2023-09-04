@@ -27,7 +27,7 @@ async def login_for_access_token(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=float(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
-        data={"sub": user.username, "scopes": form_data.scopes},
+        data={"sub": user.username},
         secret_key=SECRET_KEY,
         algorithm=ALGORITHM,
         expires_delta=access_token_expires,
