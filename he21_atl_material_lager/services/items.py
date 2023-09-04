@@ -5,10 +5,6 @@ from he21_atl_material_lager.models.item import Item
 from he21_atl_material_lager.schemas.items import ItemCreate, ItemUpdate
 
 
-def get_item(db: Session, item_id: str):
-    return db.query(Item).filter(Item.id == item_id).first()
-
-
 def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Item).offset(skip).limit(limit).all()
 
