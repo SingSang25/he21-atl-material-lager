@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 import re
@@ -19,6 +19,7 @@ from he21_atl_material_lager.services.users import (
     get_user_by_id,
 )
 
+# Regex for email validation (99% accurate, https://uibakery.io/regex-library/email-regex-python)
 regex = re.compile(
     r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 )
@@ -40,7 +41,7 @@ def read_users(
 @router.post("/", response_model=User, tags=["User"])
 def create_user(
     user: UserCreate,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     db_user_email = get_user_by_email(db, user.email)
@@ -75,8 +76,9 @@ def update_user_me(
 
     if user_data.password:
         user_data.password = get_password_hash(user_data.password)
-    if not regex.match(user_data.email):
-        raise HTTPException(status_code=400, detail="Email not valid")
+    if user_data.email is not None:
+        if not regex.match(user_data.email):
+            raise HTTPException(status_code=400, detail="Email not valid")
 
     return update_user_service(db, current_user.id, user_data, db_user)
 
@@ -109,14 +111,15 @@ def read_user(
 def update_user(
     user_data: UserUpdate,
     user_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     db_user = get_user_by_id(db, user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    if not regex.match(user_data.email):
-        raise HTTPException(status_code=400, detail="Email not valid")
+    if user_data.email is not None:
+        if not regex.match(user_data.email):
+            raise HTTPException(status_code=400, detail="Email not valid")
 
     return update_user_service(db, user_id, user_data, db_user)
 
@@ -124,7 +127,7 @@ def update_user(
 @router.delete("/{user_id}", response_model=User, tags=["User"])
 def delete_user(
     user_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     db_user = get_user_by_id(db, user_id)
