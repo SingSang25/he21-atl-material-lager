@@ -4,9 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from he21_atl_material_lager.database import Base
-
-def generate_uuid():
-    return str(uuid4())
+from he21_atl_material_lager.dependencies import generate_uuid
 
 
 class User(Base):
