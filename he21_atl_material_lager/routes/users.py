@@ -1,8 +1,10 @@
+import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
-import re
 
+from he21_atl_material_lager.install import init_db_user
 from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
 from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.dependencies import get_db
@@ -25,6 +27,12 @@ regex = re.compile(
 )
 
 router = APIRouter(prefix="/users")
+
+
+@router.on_event("startup")
+def startup_event():
+    db = next(get_db())
+    init_db_user(db)
 
 
 @router.get("/", response_model=list[User], tags=["User"])
