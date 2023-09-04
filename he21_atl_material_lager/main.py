@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
 from he21_atl_material_lager.database import engine
 from he21_atl_material_lager.models import item, log, user
 from he21_atl_material_lager.routes import items, logs, users, tockens, status
 from he21_atl_material_lager.install import init_db_user
+from he21_atl_material_lager.dependencies import get_db
 
 item.Item.metadata.create_all(bind=engine)
 log.Log.metadata.create_all(bind=engine)
@@ -21,9 +21,5 @@ app.include_router(status.router)
 
 @app.on_event("startup")
 def startup_event():
-    init_db_user()
-
-
-# Fragen:
-# Wie kann ich Konfigs speichern? (SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES)
-# https://dev.to/jakewitcher/using-env-files-for-environment-variables-in-python-applications-55a1
+    db = next(get_db())
+    init_db_user(db)

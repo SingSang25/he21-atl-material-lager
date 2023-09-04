@@ -2,11 +2,21 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from pytest import fixture
 
 from he21_atl_material_lager.database import Base
 from he21_atl_material_lager.main import app
 from he21_atl_material_lager.dependencies import get_db
-from pytest import fixture
+from he21_atl_material_lager.services.users import (
+    get_user_by_username,
+    create_user as create_user_servic,
+)
+from he21_atl_material_lager.services.items import (
+    get_items,
+    create_item as create_item_servic,
+)
+from he21_atl_material_lager.schemas.users import UserCreate
+from he21_atl_material_lager.schemas.items import ItemCreate
 
 SQLALCHEMY_DATABASE_URL = (
     "sqlite:///./he21_atl_material_lager/database/sql_test_item.db"
@@ -34,12 +44,57 @@ def override_get_db():
         db.close()
 
 
+@fixture(scope="function")
+def valid_token():
+    response = client.post(
+        "/login/access-token",
+        data={
+            "username": "test_admin",
+            "password": "test_admin",
+        },
+    )
+    data = response.json()
+    return data["access_token"]
+
+
+@fixture(scope="function", autouse=True)
+def create_user_admin():
+    db = next(override_get_db())
+    create_user_servic(
+        db,
+        UserCreate(
+            username="test_admin",
+            email="test_admin@bananna.local",
+            password="test_admin",
+            admin=True,
+            disabled=False,
+        ),
+    )
+    data = get_user_by_username(db, "test_admin")
+    return data.id
+
+
+@fixture(scope="function", autouse=True)
+def create_item(valid_token, create_user_admin):
+    return client.post(
+        "/items/",
+        json={
+            "number": 20,
+            "item": "foo",
+            "availability": True,
+            "position": "Halle 1",
+            "user_id": create_user_admin,
+        },
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+
+
 app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
 
-def test_item_create():
+def test_item_create(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -47,8 +102,9 @@ def test_item_create():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
+        headers={"Authorization": f"Bearer {valid_token}"},
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -59,21 +115,14 @@ def test_item_create():
     assert "user_id" in data
 
 
-def test_item_get():
-    response = client.post(
-        "/items/",
-        json={
-            "number": 20,
-            "item": "foo",
-            "availability": True,
-            "position": "Halle 1",
-            "user_id": 1,
-        },
-    )
+def test_item_get(valid_token, create_user_admin):
+    response = create_item(valid_token, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
-    response = client.get(f"/items/{item_id}")
+    response = client.get(
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+    )
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["number"] == 20
@@ -83,7 +132,7 @@ def test_item_get():
     assert data["user_id"] == 1
 
 
-def test_item_get_list():
+def test_item_get_list(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -91,7 +140,7 @@ def test_item_get_list():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -102,7 +151,7 @@ def test_item_get_list():
             "item": "foo2",
             "availability": True,
             "position": "Halle 2",
-            "user_id": 2,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -123,7 +172,7 @@ def test_item_get_list():
     assert data[1]["user_id"] == 2
 
 
-def test_item_patch_all_propety():
+def test_item_patch_all_propety(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -131,7 +180,7 @@ def test_item_patch_all_propety():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -158,7 +207,7 @@ def test_item_patch_all_propety():
     assert data["user_id"] == 99
 
 
-def test_item_patch_number():
+def test_item_patch_number(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -166,7 +215,7 @@ def test_item_patch_number():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -189,7 +238,7 @@ def test_item_patch_number():
     assert data["user_id"] == 1
 
 
-def test_item_patch_item():
+def test_item_patch_item(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -197,7 +246,7 @@ def test_item_patch_item():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -220,7 +269,7 @@ def test_item_patch_item():
     assert data["user_id"] == 1
 
 
-def test_item_patch_availability():
+def test_item_patch_availability(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -228,7 +277,7 @@ def test_item_patch_availability():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -251,7 +300,7 @@ def test_item_patch_availability():
     assert data["user_id"] == 1
 
 
-def test_item_patch_position():
+def test_item_patch_position(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -259,7 +308,7 @@ def test_item_patch_position():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -282,7 +331,7 @@ def test_item_patch_position():
     assert data["user_id"] == 1
 
 
-def test_item_patch_user_id():
+def test_item_patch_user_id(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -290,7 +339,7 @@ def test_item_patch_user_id():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200, response.text
@@ -313,7 +362,7 @@ def test_item_patch_user_id():
     assert data["user_id"] == 99
 
 
-def test_item_get_not_found():
+def test_item_get_not_found(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -321,7 +370,7 @@ def test_item_get_not_found():
             "item": "foo",
             "availability": True,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     response = client.get(f"/items/5")
@@ -330,7 +379,7 @@ def test_item_get_not_found():
     assert data["detail"] == "Item not found"
 
 
-def test_item_patch_not_found():
+def test_item_patch_not_found(valid_token, create_user_admin):
     response = client.patch(
         f"/items/5",
         json={
@@ -346,7 +395,7 @@ def test_item_patch_not_found():
     assert data["detail"] == "Item not found"
 
 
-def test_item_delete():
+def test_item_delete(valid_token, create_user_admin):
     response = client.post(
         "/items/",
         json={
@@ -354,7 +403,7 @@ def test_item_delete():
             "item": "foo",
             "availability": False,
             "position": "Halle 1",
-            "user_id": 1,
+            "user_id": create_user_admin,
         },
     )
     assert response.status_code == 200
