@@ -1,5 +1,5 @@
 from uuid import uuid4
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship
 from he21_atl_material_lager.database import Base
 from he21_atl_material_lager.dependencies import generate_uuid

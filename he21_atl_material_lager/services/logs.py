@@ -26,16 +26,13 @@ def get_logs_by_item_id(db: Session, item_id: str):
 
 
 def get_logs_by_type(db: Session, type: str):
-    return db.query(Log).filter(Log.type == type)
+    return db.query(Log).filter(Log.type == type).all()
 
 
 def create_log(db: Session, log: LogCreate):
     db_log = Log(
+        **log.model_dump(),
         datum=datetime.today(),
-        log=log.log,
-        user_id=log.user_id,
-        item_id=log.item_id,
-        type=log.type,
     )
     db.add(db_log)
     db.commit()

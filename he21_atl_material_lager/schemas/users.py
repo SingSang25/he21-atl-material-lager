@@ -5,7 +5,7 @@ from he21_atl_material_lager.schemas.logs import Log
 
 class UserBase(BaseModel):
     email: str
-    username:  str
+    username: str
     admin: bool
     disabled: bool
 
@@ -28,4 +28,4 @@ class User(UserBase):
     log: list[Log] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
