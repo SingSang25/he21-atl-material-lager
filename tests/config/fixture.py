@@ -65,3 +65,16 @@ def valid_token():
     )
     data = response.json()
     return data["access_token"]
+
+
+@fixture(scope="function")
+def valid_token_user():
+    response = client.post(
+        "/login/access-token",
+        data={
+            "username": "test_user",
+            "password": "test_user",
+        },
+    )
+    data = response.json()
+    return data["access_token"]

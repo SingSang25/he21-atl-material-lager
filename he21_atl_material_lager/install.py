@@ -6,6 +6,8 @@ from he21_atl_material_lager.services.users import (
     create_user,
     update_user,
 )
+from he21_atl_material_lager.services.logs import create_log as create_log_service
+from he21_atl_material_lager.schemas.logs import LogCreate
 
 
 def init_db_user(db: Session):
@@ -21,9 +23,27 @@ def init_db_user(db: Session):
                     disabled=False,
                 ),
             )
+            create_log_service(
+                db,
+                LogCreate(
+                    user_id=1,
+                    item_id="",
+                    log="User created",
+                    type="system",
+                ),
+            )
         else:
             user = db.query(User).filter(User.username == "admin").first()
             update_user(db, user.id, UserUpdate(admin=True), user)
+            create_log_service(
+                db,
+                LogCreate(
+                    user_id=1,
+                    item_id="",
+                    log="User updated",
+                    type="system",
+                ),
+            )
 
     if not db.query(User).filter(User.admin == False).first():
         if db.query(User).filter(User.username == "user"):
@@ -37,6 +57,24 @@ def init_db_user(db: Session):
                     disabled=False,
                 ),
             )
+            create_log_service(
+                db,
+                LogCreate(
+                    user_id=1,
+                    item_id="",
+                    log="User created",
+                    type="system",
+                ),
+            )
         else:
             user = db.query(User).filter(User.username == "user").first()
             update_user(db, user.id, UserUpdate(admin=False), user)
+            create_log_service(
+                db,
+                LogCreate(
+                    user_id=1,
+                    item_id="",
+                    log="User updated",
+                    type="system",
+                ),
+            )

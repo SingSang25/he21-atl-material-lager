@@ -201,6 +201,83 @@ def test_user_patch_email(valid_token):
     assert data["id"] == user_id
 
 
+def test_user_patch_password(valid_token):
+    # Create user
+    response = create_user_with_return_response(valid_token)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+
+    response = client.patch(
+        f"/users/{user_id}",
+        json={"password": "neu_chimichangas4life"},
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200
+    response = client.get(
+        f"/users/{user_id}", headers={"Authorization": f"Bearer {valid_token}"}
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "deadpool@example.com"
+    assert data["username"] == "deadpool"
+    assert data["id"] == user_id
+
+
+def test_user_patch_admin(valid_token):
+    response = create_user_with_return_response(valid_token)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "admin": False,
+        },
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200
+    response = client.get(
+        f"/users/{user_id}",
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "deadpool@example.com"
+    assert data["username"] == "deadpool"
+    assert data["id"] == user_id
+    assert data["admin"] == False
+    assert data["disabled"] == False
+
+
+def test_user_patch_disable(valid_token):
+    response = create_user_with_return_response(valid_token)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    user_id = data["id"]
+
+    response = client.patch(
+        f"/users/{user_id}",
+        json={
+            "disabled": True,
+        },
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200
+    response = client.get(
+        f"/users/{user_id}",
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "deadpool@example.com"
+    assert data["username"] == "deadpool"
+    assert data["id"] == user_id
+    assert data["admin"] == True
+    assert data["disabled"] == True
+
+
 def test_user_get_not_found(valid_token):
     response = client.get(
         "/users/uuid_that_does_not_exist",

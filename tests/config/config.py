@@ -49,6 +49,29 @@ def create_user_with_return_response(
     return response
 
 
+def create_item(
+    valid_token,
+    create_user_admin,
+    number=20,
+    item="foo",
+    availability=True,
+    position="Halle 1",
+):
+    response = client.post(
+        "/items/",
+        json={
+            "number": number,
+            "item": item,
+            "availability": availability,
+            "position": position,
+            "user_id": create_user_admin,
+        },
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+
+    return response
+
+
 app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)

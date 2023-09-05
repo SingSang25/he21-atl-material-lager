@@ -11,8 +11,9 @@ class Log(Base):
     id = Column(String, primary_key=True, index=True, default=generate_uuid)
     datum = Column(DateTime, index=True)
     log = Column(String, index=True)
+    type = Column(String)  # item, user, system
     user_id = Column(String, ForeignKey("users.id"))
-    item_id = Column(String, ForeignKey("items.id"))
+    item_id = Column(String, ForeignKey("items.id"), nullable=True)
 
     user = relationship("User", back_populates="logs")
     item = relationship("Item", back_populates="logs")

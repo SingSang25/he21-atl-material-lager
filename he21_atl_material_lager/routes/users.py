@@ -6,9 +6,12 @@ from typing import Annotated
 
 from he21_atl_material_lager.install import init_db_user
 from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
-from he21_atl_material_lager.schemas.logs import Log
+from he21_atl_material_lager.schemas.logs import Log, LogCreate
 from he21_atl_material_lager.dependencies import get_db
-from he21_atl_material_lager.services.logs import get_logs_by_user_id
+from he21_atl_material_lager.services.logs import (
+    get_logs_by_user_id,
+    create_log as create_log_service,
+)
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
 from he21_atl_material_lager.services.security import get_password_hash
 from he21_atl_material_lager.services.users import (
@@ -64,7 +67,14 @@ def create_user(
         raise HTTPException(status_code=400, detail="Email already registered")
     if db_user_username:
         raise HTTPException(status_code=400, detail="Username already registered")
-    return create_user_service(db=db, user=user)
+    user = create_user_service(db=db, user=user)
+    create_log_service(
+        db,
+        LogCreate(
+            user_id=current_user.id, item_id=user.id, log="User created", type="user"
+        ),
+    )
+    return user
 
 
 @router.get("/me/", response_model=User, tags=["User"])
@@ -88,7 +98,14 @@ def update_user_me(
         if not regex.match(user_data.email):
             raise HTTPException(status_code=400, detail="Email not valid")
 
-    return update_user_service(db, current_user.id, user_data, db_user)
+    user = update_user_service(db, current_user.id, user_data, db_user)
+    create_log_service(
+        db,
+        LogCreate(
+            user_id=current_user.id, item_id=user.id, log="User updated", type="user"
+        ),
+    )
+    return user
 
 
 @router.delete("/me/", response_model=User, tags=["User"])
@@ -100,6 +117,12 @@ def delete_user_me(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     delete_user_service(db, current_user.id)
+    create_log_service(
+        db,
+        LogCreate(
+            user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
+        ),
+    )
     return db_user
 
 
@@ -128,8 +151,14 @@ def update_user(
     if user_data.email is not None:
         if not regex.match(user_data.email):
             raise HTTPException(status_code=400, detail="Email not valid")
-
-    return update_user_service(db, user_id, user_data, db_user)
+    user = update_user_service(db, user_id, user_data, db_user)
+    create_log_service(
+        db,
+        LogCreate(
+            user_id=current_user.id, item_id=user.id, log="User updated", type="user"
+        ),
+    )
+    return user
 
 
 @router.delete("/{user_id}", response_model=User, tags=["User"])
@@ -142,6 +171,12 @@ def delete_user(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     delete_user_service(db, user_id)
+    create_log_service(
+        db,
+        LogCreate(
+            user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
+        ),
+    )
     return db_user
 
 

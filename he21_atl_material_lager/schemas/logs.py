@@ -6,6 +6,7 @@ class LogBase(BaseModel):
     user_id: str
     item_id: str
     log: str
+    type: str
 
 
 class LogCreate(LogBase):
