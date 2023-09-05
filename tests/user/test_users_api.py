@@ -320,3 +320,33 @@ def test_user_delete(valid_token):
     assert response.status_code == 404, response.text
     data = response.json()
     assert data["detail"] == "User not found"
+
+
+def test_user_get_me(valid_token):
+    response = client.get(
+        "/users/me", headers={"Authorization": f"Bearer {valid_token}"}
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "test_admin@bananna.local"
+    assert data["username"] == "test_admin"
+
+
+def test_user_patch_me(valid_token):
+    response = client.patch(
+        "/users/me",
+        json={"email": "new_test_admin@bananna.local"},
+        headers={"Authorization": f"Bearer {valid_token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["email"] == "new_test_admin@bananna.local"
+    assert data["username"] == "test_admin"
+
+
+def test_user_delete_me(valid_token):
+    response = client.delete(
+        "/users/me", headers={"Authorization": f"Bearer {valid_token}"}
+    )
+    assert response.status_code == 200, response.text
+    assert response.json() == {"message": "User deleted"}
