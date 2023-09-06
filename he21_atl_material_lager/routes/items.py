@@ -96,7 +96,7 @@ def read_items_logs(
     return db_user
 
 
-@router.delete("/{item_id}", response_model=Item, tags=["Item"])
+@router.delete("/{item_id}", response_model=dict, tags=["Item"])
 def delete_item(
     item_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -107,11 +107,11 @@ def delete_item(
     db_item = get_items_by_id(db, item_id)
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    delete_item_service(db, item_id)
+    item = delete_item_service(db, item_id)
     create_log_service(
         db,
         LogCreate(
             user_id=current_user.id, item_id=item_id, log="Item deleted", type="item"
         ),
     )
-    return db_item
+    return item

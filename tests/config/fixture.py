@@ -55,7 +55,7 @@ def create_user_user():
 
 
 @fixture(scope="function")
-def valid_token():
+def valid_token_admin():
     response = client.post(
         "/login/access-token",
         data={

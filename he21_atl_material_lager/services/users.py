@@ -72,7 +72,7 @@ def update_user(db: Session, user_id: str, user_data: UserUpdate, db_user: User)
 def delete_user(db: Session, user_id: str):
     db.query(User).filter(User.id == user_id).delete()
     db.commit()
-    return {"message": "User deleted successfully"}
+    return {"message": "User deleted"}
 
 
 def is_user_admin(db: Session, user_id: str):

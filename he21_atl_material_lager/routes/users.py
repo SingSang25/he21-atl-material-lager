@@ -22,6 +22,7 @@ from he21_atl_material_lager.services.users import (
     delete_user as delete_user_service,
     get_users,
     get_user_by_id,
+    is_user_admin,
 )
 
 # Regex for email validation (99% accurate, https://uibakery.io/regex-library/email-regex-python)
@@ -55,6 +56,8 @@ def create_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
+    if is_user_admin(db, current_user.id) is False:
+        raise HTTPException(status_code=403, detail="Not enough rights")
     db_user_email = get_user_by_email(db, user.email)
     db_user_username = get_user_by_username(db, user.username)
     if not regex.match(user.email):
@@ -77,14 +80,15 @@ def create_user(
     return user
 
 
-@router.get("/me/", response_model=User, tags=["User"])
+@router.get("/me", response_model=User, tags=["User"])
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
 ):
-    return current_user
+    return get_user_by_id(db, current_user.id)
 
 
-@router.patch("/me/", response_model=User, tags=["User"])
+@router.patch("/me", response_model=User, tags=["User"])
 def update_user_me(
     user_data: UserUpdate,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -108,7 +112,7 @@ def update_user_me(
     return user
 
 
-@router.delete("/me/", response_model=User, tags=["User"])
+@router.delete("/me", response_model=dict, tags=["User"])
 def delete_user_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
@@ -116,14 +120,14 @@ def delete_user_me(
     db_user = get_user_by_id(db, current_user.id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    delete_user_service(db, current_user.id)
+    user = delete_user_service(db, current_user.id)
     create_log_service(
         db,
         LogCreate(
             user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
         ),
     )
-    return db_user
+    return user
 
 
 @router.get("/{user_id}", response_model=User, tags=["User"])
@@ -161,32 +165,22 @@ def update_user(
     return user
 
 
-@router.delete("/{user_id}", response_model=User, tags=["User"])
+@router.delete("/{user_id}", response_model=dict, tags=["User"])
 def delete_user(
     user_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
+    if is_user_admin(db, current_user.id) is False:
+        raise HTTPException(status_code=403, detail="Not enough rights")
     db_user = get_user_by_id(db, user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    delete_user_service(db, user_id)
+    user = delete_user_service(db, user_id)
     create_log_service(
         db,
         LogCreate(
             user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
         ),
     )
-    return db_user
-
-
-@router.get("/{user_id}/logs", response_model=list[Log], tags=["User"])
-def read_user_logs(
-    user_id: str,
-    current_user: Annotated[User, Depends(get_current_active_user)],
-    db: Session = Depends(get_db),
-):
-    db_user = get_logs_by_user_id(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="No Log by this user")
-    return db_user
+    return user

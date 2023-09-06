@@ -27,7 +27,7 @@ def override_get_db():
         db.close()
 
 
-def create_user_with_return_response(
+def create_user(
     valid_token,
     email="deadpool@example.com",
     username="deadpool",
@@ -51,7 +51,7 @@ def create_user_with_return_response(
 
 def create_item(
     valid_token,
-    create_user_admin,
+    user_id,
     number=20,
     item="foo",
     availability=True,
@@ -64,7 +64,7 @@ def create_item(
             "item": item,
             "availability": availability,
             "position": position,
-            "user_id": create_user_admin,
+            "user_id": user_id,
         },
         headers={"Authorization": f"Bearer {valid_token}"},
     )

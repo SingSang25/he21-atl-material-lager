@@ -3,8 +3,8 @@ from tests.config.config import client, create_item
 pytest_plugins = ["tests.config.fixture"]
 
 
-def test_item_create(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_create(valid_token_admin, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     assert "item" in data
@@ -14,14 +14,21 @@ def test_item_create(valid_token, create_user_admin):
     assert "user_id" in data
 
 
-def test_item_get(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_create_no_admin(valid_token_user, create_user_user):
+    response = create_item(valid_token_user, create_user_user)
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "Activ User is not an Admin"
+
+
+def test_item_get(valid_token_user, valid_token_admin, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
 
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -32,14 +39,14 @@ def test_item_get(valid_token, create_user_admin):
     assert data["user_id"] == create_user_admin
 
 
-def test_item_get_list(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_get_list(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     user_id1 = data["user_id"]
 
     response = create_item(
-        valid_token,
+        valid_token_admin,
         create_user_admin,
         number=202,
         item="foo2",
@@ -50,7 +57,9 @@ def test_item_get_list(valid_token, create_user_admin):
     data = response.json()
     user_id2 = data["user_id"]
 
-    response = client.get(f"/items", headers={"Authorization": f"Bearer {valid_token}"})
+    response = client.get(
+        f"/items", headers={"Authorization": f"Bearer {valid_token_user}"}
+    )
     assert response.status_code == 200, response.text
     data = response.json()
 
@@ -67,8 +76,10 @@ def test_item_get_list(valid_token, create_user_admin):
     assert data[1]["user_id"] == user_id2 or data[0]["user_id"] == user_id2
 
 
-def test_item_patch_all_propety(valid_token, create_user_admin, create_user_user):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_all_propety(
+    valid_token_admin, valid_token_user, create_user_admin, create_user_user
+):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
@@ -82,11 +93,11 @@ def test_item_patch_all_propety(valid_token, create_user_admin, create_user_user
             "position": "Halle 666",
             "user_id": create_user_user,
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_admin}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
 
@@ -98,8 +109,8 @@ def test_item_patch_all_propety(valid_token, create_user_admin, create_user_user
     assert data["user_id"] == create_user_user
 
 
-def test_item_patch_number(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_number(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
@@ -108,11 +119,11 @@ def test_item_patch_number(valid_token, create_user_admin):
         json={
             "number": 22,
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_admin}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -123,8 +134,8 @@ def test_item_patch_number(valid_token, create_user_admin):
     assert data["user_id"] == create_user_admin
 
 
-def test_item_patch_item(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_item(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
@@ -133,11 +144,11 @@ def test_item_patch_item(valid_token, create_user_admin):
         json={
             "item": "foo2",
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -148,8 +159,10 @@ def test_item_patch_item(valid_token, create_user_admin):
     assert data["user_id"] == create_user_admin
 
 
-def test_item_patch_availability(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_availability(
+    valid_token_admin, valid_token_user, create_user_admin
+):
+    response = create_item(valid_token_admin, create_user_admin)
     response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
@@ -158,11 +171,11 @@ def test_item_patch_availability(valid_token, create_user_admin):
         json={
             "availability": False,
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -173,8 +186,8 @@ def test_item_patch_availability(valid_token, create_user_admin):
     assert data["user_id"] == create_user_admin
 
 
-def test_item_patch_position(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_position(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
@@ -183,11 +196,11 @@ def test_item_patch_position(valid_token, create_user_admin):
         json={
             "position": "Halle 666",
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -198,21 +211,21 @@ def test_item_patch_position(valid_token, create_user_admin):
     assert data["user_id"] == create_user_admin
 
 
-def test_item_patch_user_id(valid_token, create_user_admin, create_user_user):
-    response = create_item(valid_token, create_user_admin)
+def test_item_patch_user_id(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200, response.text
     data = response.json()
     item_id = data["id"]
     response = client.patch(
         f"/items/{item_id}",
         json={
-            "user_id": create_user_user,
+            "user_id": create_user_admin,
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -220,20 +233,20 @@ def test_item_patch_user_id(valid_token, create_user_admin, create_user_user):
     assert data["item"] == "foo"
     assert data["availability"] == True
     assert data["position"] == "Halle 1"
-    assert data["user_id"] == create_user_user
+    assert data["user_id"] == create_user_admin
 
 
-def test_item_get_not_found(valid_token, create_user_admin):
+def test_item_get_not_found(valid_token_admin, create_user_admin):
     response = client.get(
         f"/items/uuid_that_does_not_exist",
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_admin}"},
     )
     assert response.status_code == 404, response.text
     data = response.json()
     assert data["detail"] == "Item not found"
 
 
-def test_item_patch_not_found(valid_token, create_user_admin):
+def test_item_patch_not_found(valid_token_user, create_user_admin):
     response = client.patch(
         "/items/uuid_that_does_not_exist",
         json={
@@ -243,37 +256,42 @@ def test_item_patch_not_found(valid_token, create_user_admin):
             "position": "Halle 666",
             "user_id": create_user_admin,
         },
-        headers={"Authorization": f"Bearer {valid_token}"},
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 404, response.text
     data = response.json()
     assert data["detail"] == "Item not found"
 
 
-def test_item_delete(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_delete(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200
     data = response.json()
     item_id = data["id"]
+    response = client.get(
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
+    )
+    assert response.status_code == 200, response.text
     response = client.delete(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_admin}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     response = client.get(
-        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
     )
     assert response.status_code == 404, response.text
     data = response.json()
     assert data["detail"] == "Item not found"
 
 
-def test_item_get_log(valid_token, create_user_admin):
-    response = create_item(valid_token, create_user_admin)
+def test_item_get_log(valid_token_admin, valid_token_user, create_user_admin):
+    response = create_item(valid_token_admin, create_user_admin)
     assert response.status_code == 200
     data = response.json()
     item_id = data["id"]
     response = client.get(
-        f"/items/{item_id}/logs", headers={"Authorization": f"Bearer {valid_token}"}
+        f"/items/{item_id}/logs",
+        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -282,41 +300,13 @@ def test_item_get_log(valid_token, create_user_admin):
     assert data[0]["log"] == "Item created"
 
 
-def test_item_create_no_admin(valid_token_user, create_user_user):
-    response = create_item(valid_token_user, create_user_user)
-    assert response.status_code == 400
-    data = response.json()
-    assert data["detail"] == "Activ User is not an Admin"
-
-
-def test_item_delete_no_admin(valid_token, valid_token_user, create_user_user):
-    response = create_item(valid_token, create_user_user)
+def test_item_delete_no_admin(valid_token_user, valid_token_admin, create_user_user):
+    response = create_item(valid_token_admin, create_user_user)
     assert response.status_code == 200
     data = response.json()
     item_id = data["id"]
     response = client.delete(
         f"/items/{item_id}", headers={"Authorization": f"Bearer {valid_token_user}"}
-    )
-    assert response.status_code == 400
-    data = response.json()
-    assert data["detail"] == "Activ User is not an Admin"
-
-
-def test_item_patch_no_admin(valid_token, valid_token_user, create_user_user):
-    response = create_item(valid_token, create_user_user)
-    assert response.status_code == 200
-    data = response.json()
-    item_id = data["id"]
-    response = client.patch(
-        f"/items/{item_id}",
-        json={
-            "number": 22,
-            "item": "foo2",
-            "availability": False,
-            "position": "Halle 666",
-            "user_id": create_user_user,
-        },
-        headers={"Authorization": f"Bearer {valid_token_user}"},
     )
     assert response.status_code == 400
     data = response.json()
