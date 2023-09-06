@@ -26,7 +26,7 @@ def init_db_user(db: Session):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id=1,
+                    user_id="",
                     item_id="",
                     log="User created",
                     type="system",
@@ -38,7 +38,7 @@ def init_db_user(db: Session):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id=1,
+                    user_id="",
                     item_id="",
                     log="User updated",
                     type="system",
@@ -60,7 +60,7 @@ def init_db_user(db: Session):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id=1,
+                    user_id="",
                     item_id="",
                     log="User created",
                     type="system",
@@ -72,7 +72,7 @@ def init_db_user(db: Session):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id=1,
+                    user_id="",
                     item_id="",
                     log="User updated",
                     type="system",
