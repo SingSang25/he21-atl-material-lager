@@ -31,9 +31,6 @@ def update_item(
     db: Session = Depends(get_db),
 ):
     db_item = get_items_by_id(db, item_id)
-    if is_user_admin(db, current_user.id) is False:
-        raise HTTPException(status_code=400, detail="Activ User is not an Admin")
-
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     item = update_item_service(db, item_id, item_data, db_item)
@@ -95,7 +92,7 @@ def read_items_logs(
 ):
     db_user = get_logs_by_item_id(db, item_id)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="No Log by this user")
+        raise HTTPException(status_code=404, detail="No Log by this item found")
     return db_user
 
 

@@ -1,4 +1,3 @@
-from uuid import uuid4
 from sqlalchemy import Column, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship
 from he21_atl_material_lager.database import Base
@@ -9,8 +8,8 @@ class Log(Base):
     __tablename__ = "logs"
 
     id = Column(String, primary_key=True, index=True, default=generate_uuid)
-    datum = Column(DateTime, index=True)
-    log = Column(String, index=True)
+    datum = Column(DateTime)
+    log = Column(String)
     type = Column(String)  # item, user, system
     user_id = Column(String, ForeignKey("users.id"))
     item_id = Column(String, ForeignKey("items.id"), nullable=True)

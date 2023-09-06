@@ -40,5 +40,5 @@ def read_log(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
-    logs = get_logs_by_type(db, type=log_type)
+    logs = get_logs_by_type(db, log_type)
     return logs

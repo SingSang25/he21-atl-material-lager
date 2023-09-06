@@ -1,4 +1,3 @@
-from uuid import uuid4
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 
@@ -10,10 +9,10 @@ class Item(Base):
     __tablename__ = "items"
 
     id = Column(String, primary_key=True, index=True, default=generate_uuid)
-    item = Column(String, index=True)
-    number = Column(Integer, index=True)
-    position = Column(String, index=True)
-    availability = Column(Boolean, index=True)
+    item = Column(String)
+    number = Column(Integer)
+    position = Column(String)
+    availability = Column(Boolean)
     user_id = Column(String, ForeignKey("users.id"))
 
     user = relationship("User", back_populates="items")
