@@ -4,12 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from he21_atl_material_lager.install import init_db_user
+#from he21_atl_material_lager.install import init_db_user
 from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
-from he21_atl_material_lager.schemas.logs import Log, LogCreate
+from he21_atl_material_lager.schemas.logs import LogCreate
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.services.logs import (
-    get_logs_by_user_id,
     create_log as create_log_service,
 )
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
@@ -33,10 +32,10 @@ regex = re.compile(
 router = APIRouter(prefix="/users")
 
 
-@router.on_event("startup")
-def startup_event():
-    db = next(get_db())
-    init_db_user(db)
+# @router.on_event("startup")
+# def startup_event():
+#     db = next(get_db())
+#     init_db_user(db)
 
 
 @router.get("/", response_model=list[User], tags=["User"])

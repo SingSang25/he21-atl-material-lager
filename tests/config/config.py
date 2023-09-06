@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 
 from he21_atl_material_lager.main import app
 from he21_atl_material_lager.dependencies import get_db
-from he21_atl_material_lager.install import init_db_user
 
 SQLALCHEMY_DATABASE_URL = (
     "sqlite:///./he21_atl_material_lager/database/sql_test_item.db"
