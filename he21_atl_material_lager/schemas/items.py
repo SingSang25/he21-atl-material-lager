@@ -24,7 +24,7 @@ class ItemUpdate(ItemBase):
 
 class Item(ItemBase):
     id: str
-    log: list[Log] = []
+    logs: list[Log] = []
 
     class Config:
         from_attributes = True

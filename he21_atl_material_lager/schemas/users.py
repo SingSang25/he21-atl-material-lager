@@ -24,8 +24,8 @@ class UserUpdate(UserBase):
 
 class User(UserBase):
     id: str
-    item: list[Item] = []
-    log: list[Log] = []
+    items: list[Item] = []
+    logs: list[Log] = []
 
     class Config:
-        from_attributes = True
+        from_attributes  = True
