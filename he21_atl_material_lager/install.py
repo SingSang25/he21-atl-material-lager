@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
                 LogCreate(
                     user_id="",
                     item_id="",
-                    log="User created",
+                    log="User created admin from fist install",
                     type="system",
                 ),
             )
@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
                 LogCreate(
                     user_id="",
                     item_id="",
-                    log="User updated",
+                    log="User updated admin from no admin in db",
                     type="system",
                 ),
             )
@@ -66,7 +66,7 @@ async def lifespan(app: FastAPI):
                 LogCreate(
                     user_id="",
                     item_id="",
-                    log="User created",
+                    log="User created user from fist install",
                     type="system",
                 ),
             )
@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
                 LogCreate(
                     user_id="",
                     item_id="",
-                    log="User updated",
+                    log="User updated user from no user in db",
                     type="system",
                 ),
             )
