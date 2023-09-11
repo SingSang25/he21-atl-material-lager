@@ -1,18 +1,19 @@
 from typing import Annotated
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+from he21_atl_material_lager.schemas.users import User
+from he21_atl_material_lager.schemas.tokens import TokenData
+from he21_atl_material_lager.services.users import get_user_by_username
+from he21_atl_material_lager.services.security import verify_password
+from he21_atl_material_lager.dependencies import get_db
 
 from he21_atl_material_lager.config.config import (
     SECRET_KEY,
     ALGORITHM,
 )
-from he21_atl_material_lager.schemas.users import User
-from he21_atl_material_lager.schemas.tokens import TokenData
-from he21_atl_material_lager.services.users import get_user_by_username
-from he21_atl_material_lager.dependencies import get_db
-from he21_atl_material_lager.services.security import verify_password
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/login/access-token/",

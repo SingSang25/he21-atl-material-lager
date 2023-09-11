@@ -4,11 +4,11 @@ from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from he21_atl_material_lager.schemas.tokens import Token
-from he21_atl_material_lager.services.tokens import create_access_token
 from he21_atl_material_lager.dependencies import get_db
+from he21_atl_material_lager.services.tokens import create_access_token
 from he21_atl_material_lager.services.users_authenticate import authenticate_user
 from he21_atl_material_lager.services.logs import create_log as create_log_service
+from he21_atl_material_lager.schemas.tokens import Token
 from he21_atl_material_lager.schemas.logs import LogCreate
 from he21_atl_material_lager.config.config import (
     SECRET_KEY,

@@ -1,16 +1,15 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 
-from he21_atl_material_lager.schemas.users import UserCreate, UserUpdate
 from he21_atl_material_lager.models.user import User
+from he21_atl_material_lager.schemas.logs import LogCreate
+from he21_atl_material_lager.schemas.users import UserCreate, UserUpdate
+from he21_atl_material_lager.dependencies import get_db
+from he21_atl_material_lager.services.logs import create_log as create_log_service
 from he21_atl_material_lager.services.users import (
     create_user,
     update_user,
 )
-from he21_atl_material_lager.services.logs import create_log as create_log_service
-from he21_atl_material_lager.schemas.logs import LogCreate
-from he21_atl_material_lager.dependencies import get_db
 
 
 @asynccontextmanager

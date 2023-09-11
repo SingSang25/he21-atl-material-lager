@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-#from he21_atl_material_lager.install import init_db_user
 from he21_atl_material_lager.schemas.users import User, UserCreate, UserUpdate
 from he21_atl_material_lager.schemas.logs import LogCreate
 from he21_atl_material_lager.dependencies import get_db
