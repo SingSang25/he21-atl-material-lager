@@ -23,6 +23,8 @@ def test_user_create(valid_token_admin):
     assert "email" in data
     assert "username" in data
     assert "id" in data
+    assert "password" not in data
+    assert "logs" in data
 
 
 def test_user_create_no_admin(valid_token_user):
@@ -355,6 +357,7 @@ def test_user_delete_no_admin(valid_token_admin, valid_token_user):
     )
     assert response.status_code == 403, response.text
     assert response.json() == {"detail": "Not enough rights"}
+
 
 def test_user_get_me(valid_token_user):
     response = client.get(

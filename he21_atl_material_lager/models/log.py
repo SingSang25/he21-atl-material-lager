@@ -11,6 +11,7 @@ class Log(Base):
     datum = Column(DateTime)
     log = Column(String)
     type = Column(String)  # item, user, system
+    created_by = Column(String, ForeignKey("users.id"))
     user_id = Column(String, ForeignKey("users.id"))
     item_id = Column(String, ForeignKey("items.id"), nullable=True)
 

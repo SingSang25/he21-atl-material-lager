@@ -29,6 +29,10 @@ def get_logs_by_type(db: Session, type: str):
     return db.query(Log).filter(Log.type == type).all()
 
 
+def get_logs_by_created_by(db: Session, created_by: str):
+    return db.query(Log).filter(Log.created_by == created_by).all()
+
+
 def create_log(db: Session, log: LogCreate):
     db_log = Log(
         **log.model_dump(),

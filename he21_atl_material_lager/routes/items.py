@@ -23,7 +23,7 @@ from he21_atl_material_lager.services.items import (
 router = APIRouter(prefix="/items")
 
 
-@router.patch("/{item_id}", response_model=Item, tags=["Item"])
+@router.patch("/{item_id}/", response_model=Item, tags=["Item"])
 def update_item(
     item_data: ItemUpdate,
     item_id: str,
@@ -37,7 +37,7 @@ def update_item(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=item.id, log="Item updated", type="item"
+            created_by=current_user.id, item_id=item.id, log="Item updated", type="item"
         ),
     )
     return item
@@ -55,7 +55,7 @@ def create_item(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=item.id, log="Item created", type="item"
+            created_by=current_user.id, item_id=item.id, log="Item created", type="item"
         ),
     )
     return item
@@ -72,7 +72,7 @@ def read_items(
     return users
 
 
-@router.get("/{item_id}", response_model=Item, tags=["Item"])
+@router.get("/{item_id}/", response_model=Item, tags=["Item"])
 def read_item(
     item_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -84,7 +84,7 @@ def read_item(
     return db_item
 
 
-@router.get("/{item_id}/logs", response_model=list[Log], tags=["Item"])
+@router.get("/{item_id}/logs/", response_model=list[Log], tags=["Item"])
 def read_items_logs(
     item_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -96,7 +96,7 @@ def read_items_logs(
     return db_user
 
 
-@router.delete("/{item_id}", response_model=dict, tags=["Item"])
+@router.delete("/{item_id}/", response_model=dict, tags=["Item"])
 def delete_item(
     item_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -111,7 +111,7 @@ def delete_item(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=item_id, log="Item deleted", type="item"
+            created_by=current_user.id, item_id=item_id, log="Item deleted", type="item"
         ),
     )
     return item

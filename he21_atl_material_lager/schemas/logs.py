@@ -3,8 +3,9 @@ from datetime import datetime
 
 
 class LogBase(BaseModel):
-    user_id: str
-    item_id: str
+    created_by: str
+    user_id: str | None = None
+    item_id: str | None = None
     log: str
     type: str
 

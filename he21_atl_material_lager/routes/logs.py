@@ -6,7 +6,7 @@ from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.schemas.logs import Log
 from he21_atl_material_lager.schemas.users import User
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
-from he21_atl_material_lager.services.logs import get_logs, get_log, get_logs_by_type
+from he21_atl_material_lager.services.logs import get_logs, get_log, get_logs_by_type, get_logs_by_created_by
 
 router = APIRouter(prefix="/logs")
 
@@ -22,7 +22,7 @@ def read_log(
     return logs
 
 
-@router.get("/{log_id}", response_model=Log, tags=["Log"])
+@router.get("/{log_id}/", response_model=Log, tags=["Log"])
 def read_log(
     log_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -34,11 +34,21 @@ def read_log(
     return db_log
 
 
-@router.get("/{log_type}", response_model=list[Log], tags=["Log"])
+@router.get("/{log_type}/", response_model=list[Log], tags=["Log"])
 def read_log(
     log_type: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     logs = get_logs_by_type(db, log_type)
+    return logs
+
+
+@router.get("/{created_by}/", response_model=list[Log], tags=["Log"])
+def read_log(
+    created_by: str,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+):
+    logs = get_logs_by_created_by(db, created_by)
     return logs

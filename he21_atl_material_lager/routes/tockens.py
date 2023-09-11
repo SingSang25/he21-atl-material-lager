@@ -36,6 +36,11 @@ async def login_for_access_token(
     )
     create_log_service(
         db,
-        LogCreate(user_id=user.id, item_id="", log="User logged in", type="system"),
+        LogCreate(
+            created_by=user.id,
+            user_id=user.id,
+            log="User logged in",
+            type="system",
+        ),
     )
     return {"access_token": access_token, "token_type": "bearer"}

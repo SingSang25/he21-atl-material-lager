@@ -31,12 +31,6 @@ regex = re.compile(
 router = APIRouter(prefix="/users")
 
 
-# @router.on_event("startup")
-# def startup_event():
-#     db = next(get_db())
-#     init_db_user(db)
-
-
 @router.get("/", response_model=list[User], tags=["User"])
 def read_users(
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -72,13 +66,16 @@ def create_user(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=user.id, log="User created", type="user"
+            created_by=current_user.id,
+            user_id=user.id,
+            log="User created",
+            type="user",
         ),
     )
     return user
 
 
-@router.get("/me", response_model=User, tags=["User"])
+@router.get("/me/", response_model=User, tags=["User"])
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
@@ -86,7 +83,7 @@ async def read_users_me(
     return get_user_by_id(db, current_user.id)
 
 
-@router.patch("/me", response_model=User, tags=["User"])
+@router.patch("/me/", response_model=User, tags=["User"])
 def update_user_me(
     user_data: UserUpdate,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -104,13 +101,13 @@ def update_user_me(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=user.id, log="User updated", type="user"
+            created_by=current_user.id, user_id=user.id, log="User updated", type="user"
         ),
     )
     return user
 
 
-@router.delete("/me", response_model=dict, tags=["User"])
+@router.delete("/me/", response_model=dict, tags=["User"])
 def delete_user_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
@@ -122,13 +119,16 @@ def delete_user_me(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
+            created_by=current_user.id,
+            user_id=db_user.id,
+            log="User deleted",
+            type="user",
         ),
     )
     return user
 
 
-@router.get("/{user_id}", response_model=User, tags=["User"])
+@router.get("/{user_id}/", response_model=User, tags=["User"])
 def read_user(
     user_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -140,7 +140,7 @@ def read_user(
     return db_user
 
 
-@router.patch("/{user_id}", response_model=User, tags=["User"])
+@router.patch("/{user_id}/", response_model=User, tags=["User"])
 def update_user(
     user_data: UserUpdate,
     user_id: str,
@@ -157,13 +157,13 @@ def update_user(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=user.id, log="User updated", type="user"
+            created_by=current_user.id, user_id=user.id, log="User updated", type="user"
         ),
     )
     return user
 
 
-@router.delete("/{user_id}", response_model=dict, tags=["User"])
+@router.delete("/{user_id}/", response_model=dict, tags=["User"])
 def delete_user(
     user_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -178,7 +178,10 @@ def delete_user(
     create_log_service(
         db,
         LogCreate(
-            user_id=current_user.id, item_id=db_user.id, log="User deleted", type="user"
+            created_by=current_user.id,
+            user_id=db_user.id,
+            log="User deleted",
+            type="user",
         ),
     )
     return user
