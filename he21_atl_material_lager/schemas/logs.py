@@ -4,7 +4,7 @@ from datetime import datetime
 
 class LogBase(BaseModel):
     created_by: str
-    user_id: str 
+    user_id: str | None = None
     item_id: str | None = None
     log: str
     type: str

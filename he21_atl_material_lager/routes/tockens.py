@@ -25,10 +25,10 @@ async def login_for_access_token(
     db: Session = Depends(get_db),
 ):
     user = authenticate_user(db, form_data.username, form_data.password)
-    if user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+    if user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=float(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
         data={"sub": user.username},

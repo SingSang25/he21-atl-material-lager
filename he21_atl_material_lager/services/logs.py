@@ -18,7 +18,7 @@ def get_logs_by_id(db: Session, id: str):
 
 
 def get_logs_by_user_id(db: Session, user_id: str):
-    return db.query(Log).filter(Log.user_id == user_id)
+    return db.query(Log).filter(Log.user_id == user_id).all()
 
 
 def get_logs_by_item_id(db: Session, item_id: str):
