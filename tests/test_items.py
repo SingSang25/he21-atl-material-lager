@@ -296,7 +296,7 @@ def test_item_get_log(valid_token_admin, valid_token_user, create_user_admin):
     assert response.status_code == 200
     data = response.json()
     assert data[0]["item_id"] == item_id
-    assert data[0]["user_id"] == create_user_admin
+    assert data[0]["created_by"] == create_user_admin
     assert data[0]["log"] == "Item created"
 
 
