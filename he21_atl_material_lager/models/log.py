@@ -15,9 +15,6 @@ class Log(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=True)
     item_id = Column(String, ForeignKey("items.id"), nullable=True)
 
-    user = relationship("User", foreign_keys=[created_by], back_populates="logs")
-    created_by_user = relationship(
-        "User", back_populates="logs_created_by_user", foreign_keys=[user_id]
-    )
-
+    user = relationship("User", foreign_keys=[user_id], back_populates="logs")
+    created_by_user = relationship("User", back_populates="logs_created_by_user", foreign_keys=[created_by])
     item = relationship("Item", back_populates="logs")

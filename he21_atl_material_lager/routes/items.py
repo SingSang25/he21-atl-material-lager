@@ -55,7 +55,10 @@ def create_item(
     create_log_service(
         db,
         LogCreate(
-            created_by=current_user.id, item_id=item.id, log="Item created", type="item"
+            created_by=current_user.id,
+            item_id=item.id,
+            log="Item created",
+            type="item",
         ),
     )
     return item

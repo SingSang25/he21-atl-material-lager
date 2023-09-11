@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     db = next(get_db())
     if not db.query(User).filter(User.admin == True).first():
         if db.query(User).filter(User.username == "admin"):
-            create_user(
+            db_user = create_user(
                 db,
                 UserCreate(
                     username="admin",
@@ -31,17 +31,19 @@ async def lifespan(app: FastAPI):
                 db,
                 LogCreate(
                     created_by="system",
+                    user_id=db_user.id,
                     log="User created admin from fist install",
                     type="system",
                 ),
             )
         else:
             user = db.query(User).filter(User.username == "admin").first()
-            update_user(db, user.id, UserUpdate(admin=True), user)
+            db_user = update_user(db, user.id, UserUpdate(admin=True), user)
             create_log_service(
                 db,
                 LogCreate(
                     created_by="system",
+                    user_id=db_user.id,
                     log="User updated admin from no admin in db",
                     type="system",
                 ),
@@ -49,7 +51,7 @@ async def lifespan(app: FastAPI):
 
     if not db.query(User).filter(User.admin == False).first():
         if db.query(User).filter(User.username == "user"):
-            create_user(
+            db_user = create_user(
                 db,
                 UserCreate(
                     username="user",
@@ -63,17 +65,19 @@ async def lifespan(app: FastAPI):
                 db,
                 LogCreate(
                     created_by="system",
+                    user_id=db_user.id,
                     log="User created user from fist install",
                     type="system",
                 ),
             )
         else:
             user = db.query(User).filter(User.username == "user").first()
-            update_user(db, user.id, UserUpdate(admin=False), user)
+            db_user = update_user(db, user.id, UserUpdate(admin=False), user)
             create_log_service(
                 db,
                 LogCreate(
                     created_by="system",
+                    user_id=db_user.id,
                     log="User updated user from no user in db",
                     type="system",
                 ),
