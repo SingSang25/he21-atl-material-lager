@@ -16,4 +16,9 @@ class User(Base):
     disabled = Column(Boolean, default=False)
 
     items = relationship("Item", back_populates="user")
-    logs = relationship("Log", back_populates="user")
+    logs = relationship(
+        "Log", primaryjoin="User.id == Log.created_by", back_populates="user"
+    )
+    logs_created_by_user = relationship(
+        "Log", primaryjoin="User.id == Log.user_id", back_populates="created_by_user"
+    )

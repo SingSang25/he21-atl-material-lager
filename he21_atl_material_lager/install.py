@@ -30,8 +30,7 @@ async def lifespan(app: FastAPI):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id="",
-                    item_id="",
+                    created_by="system",
                     log="User created admin from fist install",
                     type="system",
                 ),
@@ -42,8 +41,7 @@ async def lifespan(app: FastAPI):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id="",
-                    item_id="",
+                    created_by="system",
                     log="User updated admin from no admin in db",
                     type="system",
                 ),
@@ -64,8 +62,7 @@ async def lifespan(app: FastAPI):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id="",
-                    item_id="",
+                    created_by="system",
                     log="User created user from fist install",
                     type="system",
                 ),
@@ -76,8 +73,7 @@ async def lifespan(app: FastAPI):
             create_log_service(
                 db,
                 LogCreate(
-                    user_id="",
-                    item_id="",
+                    created_by="system",
                     log="User updated user from no user in db",
                     type="system",
                 ),
