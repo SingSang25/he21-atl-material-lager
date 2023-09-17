@@ -5,10 +5,6 @@ from he21_atl_material_lager.models.log import Log
 from he21_atl_material_lager.schemas.logs import LogCreate
 
 
-def get_log(db: Session, log_id: str):
-    return db.query(Log).filter(Log.id == log_id).first()
-
-
 def get_logs(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Log).offset(skip).limit(limit).all()
 
