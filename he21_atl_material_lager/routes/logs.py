@@ -48,6 +48,8 @@ def read_log(
     db: Session = Depends(get_db),
 ):
     logs = get_logs_by_type(db, log_type)
+    if logs is None:
+        raise HTTPException(status_code=404, detail="No Log by type found")
     return logs
 
 
@@ -58,6 +60,8 @@ def read_log(
     db: Session = Depends(get_db),
 ):
     logs = get_logs_by_created_by(db, created_by)
+    if logs is None:
+        raise HTTPException(status_code=404, detail="No Log by created found")
     return logs
 
 
@@ -80,4 +84,6 @@ def read_log(
     db: Session = Depends(get_db),
 ):
     logs = get_logs_by_user_id(db, user_id)
+    if logs is None:
+        raise HTTPException(status_code=404, detail="No Log by this user found")
     return logs
