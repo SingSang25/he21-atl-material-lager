@@ -23,37 +23,41 @@ def clear_db():
 
 
 @fixture(scope="function", autouse=True)
-def create_user_admin():
-    db = next(override_get_db())
-    create_user_servic(
-        db,
-        UserCreate(
-            username="test_admin",
-            email="test_admin@bananna.local",
-            password="test_admin",
-            admin=True,
-            disabled=False,
-        ),
-    )
-    data = get_user_by_username(db, "test_admin")
-    return data.id
+def create_user_admin(request):
+    if not "disable_autouse" in request.keywords:
+        db = next(override_get_db())
+        create_user_servic(
+            db,
+            UserCreate(
+                username="test_admin",
+                email="test_admin@bananna.local",
+                password="test_admin",
+                admin=True,
+                disabled=False,
+            ),
+        )
+        data = get_user_by_username(db, "test_admin")
+        return data.id
+    return None
 
 
 @fixture(scope="function", autouse=True)
-def create_user_user():
-    db = next(override_get_db())
-    create_user_servic(
-        db,
-        UserCreate(
-            username="test_user",
-            email="test_user@bananna.local",
-            password="test_user",
-            admin=False,
-            disabled=False,
-        ),
-    )
-    data = get_user_by_username(db, "test_user")
-    return data.id
+def create_user_user(request):
+    if not "disable_autouse" in request.keywords:
+        db = next(override_get_db())
+        create_user_servic(
+            db,
+            UserCreate(
+                username="test_user",
+                email="test_user@bananna.local",
+                password="test_user",
+                admin=False,
+                disabled=False,
+            ),
+        )
+        data = get_user_by_username(db, "test_user")
+        return data.id
+    return None
 
 
 @fixture(scope="function")
