@@ -6,10 +6,7 @@ from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.schemas.items import Item, ItemCreate, ItemUpdate
 from he21_atl_material_lager.schemas.logs import LogCreate
 from he21_atl_material_lager.schemas.users import User
-from he21_atl_material_lager.services.logs import (
-    get_logs_by_item_id,
-    create_log as create_log_service,
-)
+from he21_atl_material_lager.services.logs import create_log as create_log_service
 from he21_atl_material_lager.services.users import is_user_admin
 from he21_atl_material_lager.services.users_authenticate import get_current_active_user
 from he21_atl_material_lager.services.items import (
