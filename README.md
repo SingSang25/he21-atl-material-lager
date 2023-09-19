@@ -100,82 +100,120 @@ Passwort: user
 
 Falls du den Default User nicht verwenden möchtest, kannst du dich auch selber registrieren. Dazu musst du auf den Button "POST /users/" klicken und dann auf "Try it out" und dann die Daten eingeben. Danach kannst du dich mit dem User einloggen.
 
-**Achtung:** Wenn du ein User erstellt ist der default wert beim disabled true! Du musst dies auf false setzen, damit du dich mit dem User einloggen kannst. Dies zellt auch für die Admin rechte. Wenn du ein User erstellst, ist der default wert beim admin true! Du musst dies auf fals setzen, damit du keine Admin rechte hast.
+**Achtung:**
 
-## Komponenten
+Wenn du ein User erstellt ist der default wert beim disabled true! Du musst dies auf false setzen, damit du dich mit dem User einloggen kannst. Dies zellt auch für die Admin rechte. Wenn du ein User erstellst, ist der default wert beim admin true! Du musst dies auf fals setzen, damit du keine Admin rechte hast.
 
-This is an example of how to list things you need to use the software and how to install them.
+Des weiteren muss man aufpassen wenn man einen Patch macht darf beim Letzten Wert **kein** Komma sein. Dies führt zu einem Fehler in der API.
 
-- npm
-
-  ```sh
-  npm install npm@latest -g
-  ```
-
-## Überlegungen
+## Schnitstellen
 
 ### Item
 
-| Typ | Route | Beschreibung |
-| :--- | :--- | :--- |
-| PATCH | /items/{item_id}/ | Item ändern |
-| GET | /items/{item_id}/ | Item anzeigen |
-| DELETE | /items/{item_id}/ | Item löschen |
-| POST | /items/ | Item erstellen |
-| GET | /items/ | Alle Items anzeigen |
-| GET | /items/{item_id}/logs/ | Alle Logs von einem Item anzeigen |
+| Typ    | Route                  | Beschreibung                      | Admin Rechte benötigt |
+| :----- | :--------------------- | :-------------------------------- | :-------------------- |
+| GET    | /items/                | Alle Items anzeigen               | Nein                  |
+| POST   | /items/                | Item erstellen                    | Ja                    |
+| GET    | /items/{item_id}/      | Ein Item anzeigen                 | Nein                  |
+| PATCH  | /items/{item_id}/      | Item ändern                       | Nein                  |
+| DELETE | /items/{item_id}/      | Item löschen                      | Ja                    |
+| GET    | /items/{item_id}/logs/ | Alle Logs von einem Item anzeigen | Nein                  |
 
 ### Log
 
-| Typ | Route | Beschreibung |
-| :--- | :--- | :--- |
-| GET | /logs/ | Alle Logs anzeigen |
-| GET | /logs/{log_id}/ | Log anzeigen |
-| GET | /logs/type/{log_type}/ | Alle Logs von einem Typ anzeigen |
-| GET | /logs/created/{created_by}/ | Alle Logs von einem User anzeigen |
+| Typ | Route                       | Beschreibung                      | Admin Rechte benötigt |
+| :-- | :-------------------------- | :-------------------------------- | :-------------------- |
+| GET | /logs/                      | Alle Logs anzeigen                | Nein                  |
+| GET | /logs/{log_id}/             | Ein Log anzeigen                  | Nein                  |
+| GET | /logs/type/{log_type}/      | Alle Logs von einem Typ anzeigen  | Nein                  |
+| GET | /logs/created/{created_by}/ | Alle Logs von einem User anzeigen | Nein                  |
 
 ### User
 
-| Typ | Route | Beschreibung |
-| :--- | :--- | :--- |
-| GET | /users/{user_id}/logs/ | Alle Logs von einem User anzeigen |
-| GET | /users/ | Alle User anzeigen |
-| POST | /users/ | User erstellen |
-| GET | /users/me/ | User anzeigen |
-| DELETE | /users/me/ | User löschen |
-| PATCH | /users/me/ | User ändern |
-| GET | /users/{user_id}/ | User anzeigen |
-| PATCH | /users/{user_id}/ | User ändern |
-| DELETE | /users/{user_id}/ | User löschen |
+| Typ    | Route                  | Beschreibung                      | Admin Rechte benötigt |
+| :----- | :--------------------- | :-------------------------------- | :-------------------- |
+| GET    | /users/                | Alle User anzeigen                | Nein                  |
+| POST   | /users/                | User erstellen                    | Ja                    |
+| GET    | /users/me/             | Eingelogter User anzeigen         | Nein                  |
+| PATCH  | /users/me/             | Eingelogter User ändern           | Nein                  |
+| DELETE | /users/me/             | Eingelogter User löschen          | Nein                  |
+| GET    | /users/{user_id}/      | Ein User anzeigen                 | Nein                  |
+| PATCH  | /users/{user_id}/      | Ein User ändern                   | Ja                    |
+| DELETE | /users/{user_id}/      | Ein User löschen                  | Ja                    |
+| GET    | /users/{user_id}/logs/ | Alle Logs von einem User anzeigen | Nein                  |
 
 ### Tocken
 
-| Typ | Route | Beschreibung |
-| :--- | :--- | :--- |
-| POST | /login/access-token/ | Token erstellen |
+| Typ  | Route                | Beschreibung    | Admin Rechte benötigt |
+| :--- | :------------------- | :-------------- | :-------------------- |
+| POST | /login/access-token/ | Token erstellen | Nein                  |
+
+### Überlegungen
+
+Die Endpunbkte haben zwei verschiedene Berechtigunen. (Admin und User, sieh in den Tabellen oben welche sie verwenden können).
+
+**User**
+
+Alle User Endpunkte sind zum verwalten der User gedacht.
+
+Jeder hat die Möglichkeit seinen User zu bearbeiten (Ja, auch die Adminrechte).
+
+Jeder Admin kann alle User Bearbeiten und löschen so wie neue User erstellen. Dabei kann jeder User alle User aufrufgen, damit er diese dannach bei den Items zuweisen kann.
+
+**Items**
+
+Nur Admins können neue Items erstellen, oder auch die Items löschen.
+
+Jedoch kann jeder User die Items aufrufen und bearbeiten, damit er diese anderen oder sich selbst zuweisen kann.
+
+**Logs**
+
+Jeder kann die Logs aufrufen und keiner kann die Logs beraeiten oder löschen.
+
+Dies dient der nachverfolgbarkeit, damit man sieht wer was gemacht hat.
+
+### Logs Lesen
+
+Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie bedeuten.
+
+| Parameter  | Datentyp | Beschreibung                                                                                                                                                                    |
+| :--------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| id         | String   | Die ID des Logs, dies sist eine uuid4, welche selbstständig generiert wird                                                                                                      |
+| datum      | DateTime | Das Datum, wann der eintrag gemacht wurde                                                                                                                                       |
+| log        | String   | Der Inhalt was gemacht wurde bei diesem eintrag **Es stehen keine User oder Items hier, nur z.B. User created**                                                                 |
+| type       | String   | Der Typ des Logs, es gibt drei verschiedene Typen (item, user, system) Damit siehr man welchen Endpunkt verwendet wurde. Bei System sind es automatismen welche diese erstellen |
+| created_by | String   | Die ID des Users, welcher diesen eingelogt war und diesen eintrag gemacht hat                                                                                                   |
+| user_id    | String   | Die ID des Users, welcher betroffen ist. **Dies zeigt an, falls ein User betroffen welchen es war, z.B. Neuer User erstellt**                                                   |
+| item_id    | String   | Die ID des Items, welcher betroffen ist. **Dies zeigt an, falls ein Item betroffen welches es war, z.B. Neues Item erstellt**                                                   |
 
 ## Ändern bzw. verbessern wenn genügend Zeit
 
 - Grafische Benutzeroberfläche:
-  - Ich hätte eine Benutzeroberfläche erstellt, die die API verwendet. Ich hatte jedoch keine Zeit, dies zu lernen.
+  - Ich hätte eine Benutzeroberfläche erstellt, die die API verwendet. Ich hatte jedoch keine Zeit, dies noch zu lernen, bzw. die Zeit dies Umzusetzen.
 - Mehr und genauere Tests:
-  - Einige Tests sind nicht so genau, wie sie sein sollten. Allerdings habe ich nicht die Zeit gefunden, dies zu ändern. Besonders die Logs hätten besser getestet werden sollen. In den Tests hatt es mehrfachen Code den ich verbessern hätte können.
+  - Einige Tests sind nicht so genau, wie sie sein sollten. Besonders die Logs hätten besser getestet werden sollen. In den Tests hatt es mehrfachen Code den ich verbessern hätte können.
 - Routen der Logs:
-  - Ich hätte diese drei routen zusammengefasst oder Optimiert /logs/{log_id}/, /logs/type/{log_type}/ und /logs/created/{created_by}/ zu einer Route.
+  - Ich hätte diese drei routen zusammengefasst oder Optimiert /logs/{log_id}/, /logs/type/{log_type}/ und /logs/created/{created_by}/ zu einer Route. Dazu sind sie nicht so gut erstellt wie die Items oder User Routen.
+  - Weiter würde ich den Inhalt der Logs Optimieren, mit exakterem Inhalt.
 - Login mit scopes oder http Basic Auth:
   - Ich habe ein Login implementiert. Allerdings hatte ich nicht die Zeit die Advanced Version zu implementieren. Ich hätte dies mit scopes oder http Basic Auth gemacht.
 - Material Lager:
   - Ich habe nur einen String für den Standort verwendet, bei den Items. Ich würde dies mit einer genaueren Auflistung machen. z.B. Standort, Regal, Fach, Ebene.
-- Sicherungen bei der Eingabe im Backend, die ich jetzt im Frontend gelöst hätte.
-  - z.B. Beim Ändern des Status verfügbar muss ein Benutzer angegeben werden muss.
+- Sicherungen bei der Eingabe:
+  - Ich sollte einige eingaben im Backend abfangen, die ich jetzt im Frontend gelöst hätte. z.B. Beim Ändern des Status verfügbar muss ein Benutzer angegeben werden muss.
 - Dokumente, Metadaten:
   - Ich wollte die Schnittstellen besser dokumentieren, direkt in der API. Wie in diesem Tutorial beschrieben: [https://fastapi.tiangolo.com/tutorial/metadata/][fastapi-metadata].
-- Material löschen:
-  - Wenn man das Material löscht, wird es direkt aus der DB entfernt. Ich würde das so ändern, dass sie den Status gelöscht bekommen und dies erst nach 30 Tagen automatisch passiert. Dies würde die Möglichkeit bieten das Material wieder herzustellen.
-- Beim erstellen der DB:
-  - Akutell löse ich beim Start der API den lifespan aus um zu Prüfen ob die Default User berieits in der DB sind, jedoch kann ich dies nicht in einem Test realisieren. Ich müsste dies anders lösen, evtl. kann man dies anders lösen. Da ich zwingend User bruache (Um einen User zu erstellen ist ein User Notwendig um einen User zu habe welcher Admin rechte hat) Aktuell kann man dies nur manuell prüfen.
-- Passwort sicherheit:
+- Material / User löschen:
+  - Wenn man das Material / User löscht, wird es direkt aus der DB entfernt. Ich würde das so ändern, dass sie den Status gelöscht bekommen und dies erst nach 30 Tagen automatisch passiert. Dies würde die Möglichkeit bieten das Material wieder herzustellen.
+- Sicherheit:
   - Ich hätte noch hinzugefügt, dass man ein Passwort mit mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und Zahlen erstellen muss und das man diese Regeln auch bearbeiten kann.
+  - Aktuell kann sich selbst von ein nicht Admin zu einem Admin machen. (;
+- Patch der Items
+  - Aktuell kann jeder die alles an den Items verändern, dies müsste man einschrenken.
+- Mehrere Lager:
+  - Ich hätte die Möglichkeit geschaffen, mehrere Lager zu erstellen. Die Enzelne User haben und einzelne Items.
+- Endpunkt Item sich selber zuweisen:
+  - Einen Endpunkt, welcher dazu verwendet werden kann sich selber ein Item zuweisen.
 
 ## Kontakt
 
