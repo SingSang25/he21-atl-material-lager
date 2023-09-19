@@ -7,11 +7,7 @@ from he21_atl_material_lager.schemas.logs import LogCreate
 from he21_atl_material_lager.schemas.users import UserCreate, UserUpdate
 from he21_atl_material_lager.dependencies import get_db
 from he21_atl_material_lager.services.logs import create_log as create_log_service
-from he21_atl_material_lager.services.users import (
-    create_user,
-    get_user_by_username,
-    update_user,
-)
+from he21_atl_material_lager.services.users import create_user, update_user
 
 
 @asynccontextmanager

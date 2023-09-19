@@ -23,7 +23,7 @@ def test_log_get(valid_token_admin, create_logs):
 
 def test_get_log_by_user_id(valid_token_admin, create_logs):
     response = client.get(
-        f"/logs/user/{create_logs[5]}",
+        f"/users/{create_logs[5]}/logs",
         headers={"Authorization": f"Bearer {valid_token_admin}"},
     )
     assert response.status_code == 200, response.text
@@ -34,7 +34,7 @@ def test_get_log_by_user_id(valid_token_admin, create_logs):
 
 def test_get_log_by_log_id(valid_token_admin, create_logs):
     response = client.get(
-        f"/logs/log_id/{create_logs[0]}",
+        f"/logs/{create_logs[0]}",
         headers={"Authorization": f"Bearer {valid_token_admin}"},
     )
     assert response.status_code == 200, response.text
