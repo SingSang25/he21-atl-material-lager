@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, DateTime
+from sqlalchemy import Column, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship
 from he21_atl_material_lager.database import Base
 from he21_atl_material_lager.dependencies import generate_uuid
@@ -16,5 +16,7 @@ class Log(Base):
     item_id = Column(String, ForeignKey("items.id"), nullable=True)
 
     user = relationship("User", foreign_keys=[user_id], back_populates="logs")
-    created_by_user = relationship("User", back_populates="logs_created_by_user", foreign_keys=[created_by])
+    created_by_user = relationship(
+        "User", back_populates="logs_created_by_user", foreign_keys=[created_by]
+    )
     item = relationship("Item", back_populates="logs")
