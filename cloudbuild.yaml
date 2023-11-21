@@ -16,7 +16,7 @@ steps:
       [
         "run",
         "deploy",
-        "he21_atl_jan_zeugin",
+        "he21-atl-jan-zeugin",
         "--image",
         "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA",
         "--region",
