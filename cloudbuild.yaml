@@ -22,4 +22,6 @@ steps:
         "--region",
         "europe-west1",
         "--allow-unauthenticated",
+        "--port",
+        "8000",
       ]
