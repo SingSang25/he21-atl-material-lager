@@ -1,0 +1,9 @@
+steps:
+  - name: python:3.11-slim
+    args: ["pip", "install", "poetry"]
+  - name: python:3.11-slim
+    entrypoint: ["poetry"]
+    args: ["poetry", "install"]
+  - name: python:3.11-slim
+    entrypoint: ["poetry"]
+    args: ["-m", "pytest", "tests"]
