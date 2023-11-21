@@ -6,16 +6,10 @@ steps:
       - pip install poetry && poetry install && poetry run pytest
 
   - name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "build",
-        "-t",
-        "gcr.io/$PROJECT_ID/he21_atl_material_lager:$COMMIT_SHA",
-        ".",
-      ]
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "."]
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/$PROJECT_ID/he21_atl_material_lager:$COMMIT_SHA"]
+    args: ["push", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
 
   - name: "gcr.io/cloud-builders/gcloud"
     args:
