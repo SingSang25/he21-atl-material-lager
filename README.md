@@ -219,7 +219,11 @@ Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie
 
 ## Erstellen des Dockers
 
--
+● Dokumentiere von Anfang an deine vorgenommen Schritte und auch Herausforderungen in
+deinem README.md fiel in deinem Git Repo. Achte dabei auch auf die Darstellung.
+
+● Füge Screenshots der einzelnen Schritte (Cloud Build, Container Registry und Cloud Run) in
+deine README.md hinzu
 
 ## Cloud
 
@@ -233,13 +237,26 @@ Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie
 
 ## Fehler (Mit absicht)
 
+Um nun einen Fehler zu provozieren habe ich bei meinen Tests einen Fehler eingebaut.
+
+```bash
+def test fehler():
+assert 1 == 2
+```
+
+Nun habe ich ein git push gemacht und der Build ist fehlgeschlagen.
+
+![fehler-cloud-build]
+
+fehler-cloud-build
+
 ## Kontakt
 
 Jan Zeugin - <jan.zeugin@hf-ict.info>
 
 Project Link: [https://github.com/SingSang25/HE21-ATL-Material-Lager][GitHub-Link]
 
-<!-- MARKDOWN LINKS & IMAGES -->
+<!-- MARKDOWN LINKS -->
 
 [github-link]: https://github.com/SingSang25/HE21-ATL-Material-Lager
 [fastapi]: https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=FastAPI&logoColor=white
@@ -250,3 +267,7 @@ Project Link: [https://github.com/SingSang25/HE21-ATL-Material-Lager][GitHub-Lin
 [poetry-url]: https://python-poetry.org/docs/#installation
 [api-url]: http://127.0.0.1:8000/docs#/
 [jwt]: https://jwt.io/libraries?language=Python
+
+<!-- IMAGES -->
+
+[fehler-cloud-build]: images/fehler.png
