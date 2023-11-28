@@ -244,7 +244,7 @@ Ich habe das Problem gelöst, indem ich den Namen des GitHub-Repositorys geände
 Um nun einen Fehler zu provozieren habe ich bei meinen Tests einen Fehler eingebaut.
 
 ```bash
-def test fehler():
+def test_fehler():
 assert 1 == 2
 ```
 
