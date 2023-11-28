@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /
 COPY . .
 RUN pip install poetry
+RUN poetry config virtualenvs.create false
 RUN poetry install
-CMD poetry run uvicorn he21_atl_material_lager.main:app --reload --proxy-headers --host 0.0.0.0 --port 8000
+CMD uvicorn he21_atl_material_lager.main:app --reload --proxy-headers --host 0.0.0.0 --port 8000
 EXPOSE 8000
