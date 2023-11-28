@@ -219,21 +219,19 @@ Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie
 
 ## Erstellen des Dockers
 
-● Dokumentiere von Anfang an deine vorgenommen Schritte und auch Herausforderungen in
-deinem README.md fiel in deinem Git Repo. Achte dabei auch auf die Darstellung.
+● Dokumentiere von Anfang an deine vorgenommen Schritte und auch Herausforderungen in deinem README.md fiel in deinem Git Repo. Achte dabei auch auf die Darstellung.
 
-● Füge Screenshots der einzelnen Schritte (Cloud Build, Container Registry und Cloud Run) in
-deine README.md hinzu
+● Füge Screenshots der einzelnen Schritte (Cloud Build, Container Registry und Cloud Run) in deine README.md hinzu
 
-## Cloud
-
--
+## Einrichten der Cloud
 
 ## Probleme
 
 Ein Problem war, dass ich folgende Fehlermeldung erhielt:
 
-- The name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters.
+```bash
+The name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters.
+```
 
 Ich habe das Problem gelöst, indem ich den Namen des GitHub-Repositorys geändert habe (HE21-ATL-Material-Lager -> he21-atl-material-lager), dabei muste ich die verknüpfung zu Google Cloud erneut herstellen.
 
