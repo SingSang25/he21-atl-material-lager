@@ -311,7 +311,3 @@ def test_item_delete_no_admin(valid_token_user, valid_token_admin, create_user_u
     assert response.status_code == 400
     data = response.json()
     assert data["detail"] == "Activ User is not an Admin"
-
-
-def test_fehlschlag():
-    assert 1 == 2
