@@ -270,4 +270,4 @@ Project Link: [https://github.com/SingSang25/HE21-ATL-Material-Lager][GitHub-Lin
 
 <!-- IMAGES -->
 
-[fehler-cloud-build]: images/fehler.png
+[fehler-cloud-build]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/Fehler.png
