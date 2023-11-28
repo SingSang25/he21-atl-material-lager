@@ -231,9 +231,13 @@ deine README.md hinzu
 
 ## Probleme
 
-- Ein Problem war, dass ich folgende Fehlermeldung erhielt:
-  - The name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters.
-  - Ich habe das Problem gelöst, indem ich den Namen des GitHub-Repositorys geändert habe, dabei muste ich die verknüpfung zu Google Cloud erneut herstellen.
+Ein Problem war, dass ich folgende Fehlermeldung erhielt:
+
+- The name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters.
+
+Ich habe das Problem gelöst, indem ich den Namen des GitHub-Repositorys geändert habe (HE21-ATL-Material-Lager -> he21-atl-material-lager), dabei muste ich die verknüpfung zu Google Cloud erneut herstellen.
+
+![fehler-cloud-zwei-git]
 
 ## Fehler (Mit absicht)
 
@@ -247,8 +251,6 @@ assert 1 == 2
 Nun habe ich ein git push gemacht und der Build ist fehlgeschlagen.
 
 ![fehler-cloud-build]
-
-fehler-cloud-build
 
 ## Kontakt
 
@@ -271,3 +273,4 @@ Project Link: [https://github.com/SingSang25/HE21-ATL-Material-Lager][GitHub-Lin
 <!-- IMAGES -->
 
 [fehler-cloud-build]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/Fehler.png
+[fehler-cloud-zwei-git]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/ZweiGitHubVerknüpfungen.png
