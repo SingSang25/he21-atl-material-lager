@@ -221,6 +221,14 @@ Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie
 
 1. Erstelle ein Dockerfile, welches die API in einen Docker Container packt.
 
+Dies kannst du mit folgendem Code machen.
+
+```bash
+docker init
+```
+
+Dannach muss man das Docker File anpassen:
+
 ```dockerfile
 ARG PYTHON_VERSION=3.11.1
 
@@ -364,23 +372,25 @@ steps:
       - pip install poetry && poetry install && poetry run pytest
 ```
 
-Hier wird ein neuer Container erstellt, welcher als Basis Python verwendet. Danach wird poetry installiert und die Tests werden danach ausgeführt.
+In diesem Schritt wird ein neuer Container mit Python als Basis erstellt. Der Container wird so konfiguriert, dass das Poetry-Paketverwaltungstool installiert wird. Anschliessend werden die erforderlichen Abhängigkeiten installiert und die Tests mit Poetry ausgeführt.
 
 ```yaml
 - name: "gcr.io/cloud-builders/docker"
   args: ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "."]
 ```
 
-$PROJECT_ID -> Die ID des Projektes in der Google Cloud
-$REPO_NAME -> Der Name des GitHub-Repositorys
-$COMMIT_SHA -> Der Commit SHA
+Im zweiten Schritt wird der Docker-Container erstellt. Der Container wird mit einem eindeutigen Tag versehen, das aus den Umgebungsvariablen:
+
+- $PROJECT_ID -> Die ID des Projektes in der Google Cloud
+- $REPO_NAME -> Der Name des GitHub-Repositorys
+- $COMMIT_SHA -> Der SHA des Commits
 
 ```yaml
 - name: "gcr.io/cloud-builders/docker"
   args: ["push", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
 ```
 
-Hier wird das Docker Image in die Google Cloud hochgeladen.
+Nach dem erfolgreichen Erstellen des Docker-Containers wird dieser in den Google Cloud Container Registry hochgeladen. Dieser Schritt stellt sicher, dass das erstellte Image für den späteren Einsatz in der Google Cloud verfügbar ist.
 
 ```yaml
 - name: "gcr.io/cloud-builders/gcloud"
@@ -403,8 +413,14 @@ Hier wird das Docker Image in die Google Cloud hochgeladen.
     ]
 ```
 
-Hier wird der Container in der Google Cloud gestartet.
-Mit folgenden Parametern: --min-instances 0, --max-instances 1, --region europe-west1, --allow-unauthenticated, --port 8000
+Der letzte Schritt beinhaltet das Bereitstellen des erstellten Containers in Google Cloud Run.
+Mit folgenden Parametern, damit nicht zu viele Instanzen erstellt werden und die API unter dem Port 8000 erreichbar ist:
+
+- --min-instances 0
+- --max-instances 1
+- --region europe-west1
+- --allow-unauthenticated
+- --port 8000
 
 ### Cloud Link
 
