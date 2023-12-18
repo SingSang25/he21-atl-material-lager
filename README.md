@@ -219,11 +219,196 @@ Die Logs sind nicht selbsterklärend, deswegen hier ein kurzer beschrieb was sie
 
 ## Erstellen des Dockers
 
-● Dokumentiere von Anfang an deine vorgenommen Schritte und auch Herausforderungen in deinem README.md fiel in deinem Git Repo. Achte dabei auch auf die Darstellung.
+1. Erstelle ein Dockerfile, welches die API in einen Docker Container packt.
 
-● Füge Screenshots der einzelnen Schritte (Cloud Build, Container Registry und Cloud Run) in deine README.md hinzu
+```dockerfile
+ARG PYTHON_VERSION=3.11.1
+
+FROM python:${PYTHON_VERSION}-slim as build
+WORKDIR /temp
+COPY pyproject.toml poetry.lock ./
+RUN pip install poetry
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without test
+
+FROM python:${PYTHON_VERSION}-slim
+WORKDIR /app
+COPY --from=build /temp/requirements.txt .
+RUN pip install -r requirements.txt
+RUN rm requirements.txt
+COPY ./he21_atl_material_lager/ /app/he21_atl_material_lager
+CMD uvicorn he21_atl_material_lager.main:app --reload --proxy-headers --host 0.0.0.0 --port 8000
+EXPOSE 8000
+```
+
+Gehen wir nun die einzelnen Schritte durch.
+
+```dockerfile
+ARG PYTHON_VERSION=3.11.1
+```
+
+Diese Zeile Definiert eine Variable, welche wir später verwenden können.
+
+```dockerfile
+FROM python:${PYTHON_VERSION}-slim as build
+WORKDIR /temp
+COPY pyproject.toml poetry.lock ./
+RUN pip install poetry
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without test
+```
+
+Hier wird ein neuer Container erstellt, welcher als Basis Python verwendet. Dieser Container wird als build bezeichnet. Danach wird das Arbeitsverzeichnis auf /temp gesetzt. Danach werden die Dateien pyproject.toml und poetry.lock in das Arbeitsverzeichnis kopiert. Danach wird poetry installiert und die requirements.txt erstellt.
+
+Die requirements.txt wird erstellt, damit wir diese im nächsten Schritt verwenden können.
+
+```dockerfile
+FROM python:${PYTHON_VERSION}-slim
+WORKDIR /app
+COPY --from=build /temp/requirements.txt .
+RUN pip install -r requirements.txt
+RUN rm requirements.txt
+COPY ./he21_atl_material_lager/ /app/he21_atl_material_lager
+CMD uvicorn he21_atl_material_lager.main:app --reload --proxy-headers --host 0.0.0.0 --port 8000
+EXPOSE 8000
+```
+
+Hier wird ein neuer Container erstellt. Dieser Kontainer Protuktiv eingesetzt wird. Danach wird das Arbeitsverzeichnis auf /app gesetzt. Danach wird die requirements.txt in das Arbeitsverzeichnis vom build kopiert. Danach wird die requirements.txt installiert und danach das txt gelöscht.
+
+Danach wird der Ordner he21_atl_material_lager in das Arbeitsverzeichnis kopiert. Danach wird der Befehl uvicorn ausgeführt, welcher die API startet. Am ende wird der Port 8000 freigegeben.
+
+2. Nun kann man mit folgendem Befehl ein Docker Image.
+
+```bash
+docker build -t he21-atl-material-lager .
+```
+
+3. Nun haben wir ein Docker Image erstellt, welches wir nun starten können.
+
+```bash
+docker run -d -p 8000:8000 he21-atl-material-lager
+```
+
+![docker-run]
+
+P.S. Bei meinem Geschäftslaptop ist der Port 8000 Blockiert von einer anderen Software. Deswegen habe ich den Port 8001 verwendet.
 
 ## Einrichten der Cloud
+
+### Google Cloud
+
+1. Verbinde dein GitHub Repository mit der Google Cloud.
+
+1.1. Gehe auf die Google Cloud Platform und erstelle ein neues Projekt.
+
+1.2. Gehe auf den Cloud Build und verbinde dein GitHub Repository.
+
+![cloud-build-verknüpfen]
+
+1.3. Ich habe dazu die Funktion "Cloud Build-GitHub-Anwendung" verwendet
+
+2. Erstelle die Triggers für den Cloud Build.
+
+Dazu habe ich einen Trigger erstellt, welcher bei jedem Push auf den Master Branch ein Build startet.
+
+![cloud-trigger]
+
+3. Zu guter letzt habe ich noch die einstellung vorgenommen, dass der Cloud Builder auf die Cloud Run zugreifen kann.
+
+![settings-create]
+
+### cloudbuild.yaml
+
+1. Erstelle eine cloudbuild.yaml Datei, welche die API in einen Docker Container packt.
+
+```yaml
+steps:
+  - name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - "-c"
+      - pip install poetry && poetry install && poetry run pytest
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "."]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "run",
+        "deploy",
+        "he21-atl-jan-zeugin",
+        "--image",
+        "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA",
+        "--min-instances",
+        "0",
+        "--max-instances",
+        "1",
+        "--region",
+        "europe-west1",
+        "--allow-unauthenticated",
+        "--port",
+        "8000",
+      ]
+```
+
+Gehen wir nun die einzelnen Schritte durch.
+
+```yaml
+steps:
+  - name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - "-c"
+      - pip install poetry && poetry install && poetry run pytest
+```
+
+Hier wird ein neuer Container erstellt, welcher als Basis Python verwendet. Danach wird poetry installiert und die Tests werden danach ausgeführt.
+
+```yaml
+- name: "gcr.io/cloud-builders/docker"
+  args: ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "."]
+```
+
+$PROJECT_ID -> Die ID des Projektes in der Google Cloud
+$REPO_NAME -> Der Name des GitHub-Repositorys
+$COMMIT_SHA -> Der Commit SHA
+
+```yaml
+- name: "gcr.io/cloud-builders/docker"
+  args: ["push", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+```
+
+Hier wird das Docker Image in die Google Cloud hochgeladen.
+
+```yaml
+- name: "gcr.io/cloud-builders/gcloud"
+  args:
+    [
+      "run",
+      "deploy",
+      "he21-atl-jan-zeugin",
+      "--image",
+      "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA",
+      "--min-instances",
+      "0",
+      "--max-instances",
+      "1",
+      "--region",
+      "europe-west1",
+      "--allow-unauthenticated",
+      "--port",
+      "8000",
+    ]
+```
+
+Hier wird der Container in der Google Cloud gestartet.
+Mit folgenden Parametern: --min-instances 0, --max-instances 1, --region europe-west1, --allow-unauthenticated, --port 8000
+
+### Cloud Link
+
+Die API ist nun unter folgendem Link erreichbar: [https://he21-atl-jan-zeugin-ihvnn4wuqq-ew.a.run.app/docs][api-url]
 
 ## Probleme
 
@@ -272,3 +457,7 @@ Project Link: [https://github.com/SingSang25/HE21-ATL-Material-Lager][GitHub-Lin
 
 [fehler-cloud-build]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/Fehler.png
 [fehler-cloud-zwei-git]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/ZweiGitHubVerknüpfungen.png
+[docker-run]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/docker-run.png
+[cloud-build-verknüpfen]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/cloud-build-verknüpfen.png
+[cloud-trigger]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/cloud-trigger.png
+[settings-create]: https://github.com/SingSang25/he21-atl-material-lager/blob/main/images/settings-create.png
